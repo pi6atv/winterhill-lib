@@ -2,7 +2,9 @@ package main
 
 import (
 	"embed"
+	"fmt"
 	status_api "github.com/pi6atv/winterhill-lib/internal/web/status-api"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"io/fs"
 	"net/http"
 )
@@ -21,5 +23,7 @@ func main() {
 	}
 	http.HandleFunc("/api/status", webApi.StatusHandler)
 	http.Handle("/", http.FileServer(http.FS(subdir)))
+	http.Handle("/metrics", promhttp.Handler())
+	fmt.Println("starting webserver")
 	http.ListenAndServe(":8080", nil)
 }

@@ -3,9 +3,13 @@
 package events
 
 import (
+	"fmt"
+	"github.com/libp2p/go-reuseport"
 	"github.com/pkg/errors"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 //type StateType int64
@@ -22,8 +26,9 @@ import (
 //)
 
 type StatusEvent struct {
+	lock                 sync.Mutex
 	Index                int64       `json:"index"`                  // $0
-	State                string      `json:"state"`                  // $1:  StateType
+	State                string      `json:"state"`                  // $1: StateType
 	LNAGain              interface{} `json:"lna_gain"`               // $2: unused?
 	PunctureRate         interface{} `json:"puncture_rate"`          // $3: unused?
 	PowerI               interface{} `json:"power_i"`                // $4: unused?
@@ -38,7 +43,7 @@ type StatusEvent struct {
 	ServiceName          string      `json:"service_name"`           // $13: service name
 	ServiceProviderName  string      `json:"service_provider_name"`  // $14: provider name
 	TsNullPercentage     float64     `json:"ts_null_percentage"`     // $15: 99.9 * rcv[rx].nullpacketcountrx / (rcv[rx].packetcountrx + 1)
-	EsPid                interface{} `json:"es_pid"`                 // $16:unused
+	EsPid                interface{} `json:"es_pid"`                 // $16: unused
 	EsType               interface{} `json:"es_type"`                // $17: unused
 	ModulationCode       string      `json:"modulation_code"`        // $18: modulation + fec
 	FrameType            string      `json:"frame_type"`             // $19: 'L' ?
@@ -64,96 +69,153 @@ type StatusEvent struct {
 	IPChanges            int64       `json:"ip_changes"`             // $99:
 }
 
-func ParseEvent(in string) (*StatusEvent, error) {
-	result := StatusEvent{}
-	for _, line := range strings.Split(in, "\r\n") {
+type Listener struct {
+	Receivers map[int64]*StatusEvent `json:"receivers"`
+}
+
+func New(n int64) *Listener {
+	l := Listener{
+		Receivers: make(map[int64]*StatusEvent, n),
+	}
+	for i := int64(0); i < n; i++ {
+		l.Receivers[i] = &StatusEvent{}
+	}
+	return &l
+}
+
+// Run will start listening on the network for events, and use them to update Receivers
+func (L *Listener) Run(addr string, stop chan bool) error {
+	const bufLen = 1500
+	var buf [bufLen]byte
+
+	sock, err := reuseport.ListenPacket("udp", addr)
+	if err != nil {
+		return errors.Wrapf(err, "listen on '%s'", addr)
+	}
+	for {
+		select {
+		case <-stop:
+			return nil
+		default:
+			_ = sock.SetReadDeadline(time.Now().Add(time.Second))
+			size, _, err := sock.ReadFrom(buf[:])
+			if err != nil || size == 0 {
+				time.Sleep(time.Millisecond * 10) // 'rate limit'
+				continue                          // fixme, handle error
+			}
+
+			if strings.HasPrefix(string(buf[0:4]), "$0,0") {
+				//fmt.Println("skipping winterhill global config")
+				continue
+			}
+			go L.parse(string(buf[0:size]))
+		}
+	}
+}
+
+// parse will parse a UDP message and update the correct receiver
+func (L *Listener) parse(in string) error {
+	events := strings.Split(in, "\r\n")
+
+	if !strings.HasPrefix(events[0], "$0,") {
+		return errors.New("missing index header")
+	}
+
+	parts := strings.SplitN(events[0], ",", 2)
+	value, err := strconv.ParseInt(parts[1], 10, 64)
+	if err != nil {
+		return errors.Wrapf(err, "parsing index: '%s'", parts[1])
+	}
+
+	index := value - 1 // 0 based
+	//fmt.Printf("parse: RECEIVER: %d\n", value)
+	L.Receivers[index].lock.Lock() // make sure we're the only one writing
+	defer L.Receivers[index].lock.Unlock()
+	L.Receivers[index].Index = value // set the human-readable receiver index
+	promReceiverUpdate.WithLabelValues(fmt.Sprintf("%d", index+1)).Inc()
+
+	// loop over all events
+	for _, line := range events[1:] {
+		//fmt.Printf("LINE: %s\n", line)
 		parts := strings.SplitN(line, ",", 2)
 		switch parts[0] {
-		case "$0":
-			if parts[1] == "0" {
-				return nil, nil // winterhill common
-			}
-			value, err := strconv.ParseInt(parts[1], 10, 64)
-			if err != nil {
-				return nil, errors.Wrapf(err, "parsing index: '%s'", parts[1])
-			}
-			result.Index = value
 		case "$1":
-			result.State = parts[1]
+			L.Receivers[index].State = parts[1]
 		case "$6":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "parsing frequency: '%s'", parts[1])
+				return errors.Wrapf(err, "parsing frequency: '%s'", parts[1])
 			}
-			result.CarrierFrequency = value
+			L.Receivers[index].CarrierFrequency = value
 		case "$9":
 			value, err := strconv.ParseInt(parts[1], 10, 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "parsing symbol rate: '%s'", parts[1])
+				return errors.Wrapf(err, "parsing symbol rate: '%s'", parts[1])
 			}
-			result.SymbolRate = value
+			L.Receivers[index].SymbolRate = value
+			promReceiverSR.WithLabelValues(fmt.Sprintf("%d", index+1)).Set(float64(value))
 		case "$12":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "parsing MER: '%s'", parts[1])
+				return errors.Wrapf(err, "parsing MER: '%s'", parts[1])
 			}
-			result.Mer = value
+			L.Receivers[index].Mer = value
+			promReceiverMer.WithLabelValues(fmt.Sprintf("%d", index+1)).Set(value)
 		case "$13":
-			result.ServiceName = parts[1]
+			L.Receivers[index].ServiceName = parts[1]
 		case "$14":
-			result.ServiceProviderName = parts[1]
+			L.Receivers[index].ServiceProviderName = parts[1]
 		case "$15":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "parsing TS null percentage: '%s'", parts[1])
+				return errors.Wrapf(err, "parsing TS null percentage: '%s'", parts[1])
 			}
-			result.TsNullPercentage = value
+			L.Receivers[index].TsNullPercentage = value
 		case "$18":
-			result.ModulationCode = parts[1]
+			L.Receivers[index].ModulationCode = parts[1]
 		case "$19":
-			result.FrameType = parts[1]
+			L.Receivers[index].FrameType = parts[1]
 		case "$20":
-			result.Pilots = parts[1]
+			L.Receivers[index].Pilots = parts[1]
 		case "$30":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "parsing D number: '%s'", parts[1])
+				return errors.Wrapf(err, "parsing D number: '%s'", parts[1])
 			}
-			result.DNumber = value
+			L.Receivers[index].DNumber = value
 		case "$31":
-			result.VideoType = parts[1]
+			L.Receivers[index].VideoType = parts[1]
 		case "$32":
 			value, err := strconv.ParseInt(parts[1], 10, 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "parsing roll off: '%s'", parts[1])
+				return errors.Wrapf(err, "parsing roll off: '%s'", parts[1])
 			}
-			result.RollOff = value
+			L.Receivers[index].RollOff = value
 		case "$33":
-			result.Antenna = parts[1]
+			L.Receivers[index].Antenna = parts[1]
 		case "$34":
-			result.AudioType = parts[1]
+			L.Receivers[index].AudioType = parts[1]
 		case "$94":
-			result.TitleBar = parts[1]
+			L.Receivers[index].TitleBar = parts[1]
 		case "$96":
 			value, err := strconv.ParseInt(parts[1], 10, 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "parsing VLC stops: '%s'", parts[1])
+				return errors.Wrapf(err, "parsing VLC stops: '%s'", parts[1])
 			}
-			result.VlcStops = value
+			L.Receivers[index].VlcStops = value
 		case "$97":
 			value, err := strconv.ParseInt(parts[1], 10, 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "parsing VLC exits: '%s'", parts[1])
+				return errors.Wrapf(err, "parsing VLC exits: '%s'", parts[1])
 			}
-			result.VlcExts = value
+			L.Receivers[index].VlcExts = value
 		case "$98":
 			value, err := strconv.ParseInt(parts[1], 10, 64)
 			if err != nil {
-				return nil, errors.Wrapf(err, "parsing IP changes: '%s'", parts[1])
+				return errors.Wrapf(err, "parsing IP changes: '%s'", parts[1])
 			}
-			result.IPChanges = value
+			L.Receivers[index].IPChanges = value
 		}
 	}
-
-	return &result, nil
+	return nil
 }
