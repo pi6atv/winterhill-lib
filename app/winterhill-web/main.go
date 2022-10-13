@@ -25,5 +25,5 @@ func main() {
 	http.Handle("/", http.FileServer(http.FS(subdir)))
 	http.Handle("/metrics", promhttp.Handler())
 	fmt.Println("starting webserver")
-	http.ListenAndServe(":8081", nil)
+	_ = http.ListenAndServe(":8080", nil)
 }
