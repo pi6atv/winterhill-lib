@@ -5,6 +5,7 @@ package events
 import (
 	"fmt"
 	"github.com/libp2p/go-reuseport"
+	"github.com/pi6atv/winterhill-lib/pkg/ringbuffer"
 	"github.com/pkg/errors"
 	"strconv"
 	"strings"
@@ -12,73 +13,68 @@ import (
 	"time"
 )
 
-//type StateType int64
-//
-//const (
-//	Unknown           StateType = 1
-//	StatusSearch                = 0
-//	StatusFoundHeader           = 1
-//	StatusDemodS2               = 2
-//	StatusDemodS                = 3
-//	StatusLost                  = 0x80
-//	StatusTimeout               = 0x81
-//	StatusIdle                  = 0x82
-//)
+type floatHistory struct {
+	Time  time.Time `json:"time"`
+	Value float64   `json:"value"`
+}
 
 type StatusEvent struct {
 	lock                 sync.Mutex
-	Index                int64       `json:"index"`                  // $0
-	State                string      `json:"state"`                  // $1: StateType
-	LNAGain              interface{} `json:"lna_gain"`               // $2: unused?
-	PunctureRate         interface{} `json:"puncture_rate"`          // $3: unused?
-	PowerI               interface{} `json:"power_i"`                // $4: unused?
-	PowerO               interface{} `json:"power_o"`                // $5: unused?
-	CarrierFrequency     float64     `json:"carrier_frequency"`      // $6: in MHz
-	ConstellationI       interface{} `json:"constellation_i"`        // $7: unused?
-	ConstellationO       interface{} `json:"constellation_o"`        // $8: unused?
-	SymbolRate           int64       `json:"symbol_rate"`            // $9: in kS
-	ViterbiErrorRate     interface{} `json:"viterbi_error_rate"`     // $10: unused?
-	Ber                  interface{} `json:"ber"`                    // $11: unused?
-	Mer                  float64     `json:"mer"`                    // $12: in 0.1 dB
-	ServiceName          string      `json:"service_name"`           // $13: service name
-	ServiceProviderName  string      `json:"service_provider_name"`  // $14: provider name
-	TsNullPercentage     float64     `json:"ts_null_percentage"`     // $15: 99.9 * rcv[rx].nullpacketcountrx / (rcv[rx].packetcountrx + 1)
-	EsPid                interface{} `json:"es_pid"`                 // $16: unused
-	EsType               interface{} `json:"es_type"`                // $17: unused
-	ModulationCode       string      `json:"modulation_code"`        // $18: modulation + fec
-	FrameType            string      `json:"frame_type"`             // $19: 'L' ?
-	Pilots               string      `json:"pilots"`                 // $20: 'N' ?
-	ErrorsLDPCCount      interface{} `json:"errors_ldpc_count"`      // $21: unused?
-	ErrorsBCHCount       interface{} `json:"errors_bch_count"`       // $22: unused?
-	ErrorsBCHUncorrected interface{} `json:"errors_bch_uncorrected"` // $23: unused?
-	LNBSupply            interface{} `json:"lnb_supply"`             // $24: unused?
-	LNBPolarisationH     interface{} `json:"lnb_polarisation_h"`     // $25: unused? - is referencedÏ
-	MultiStream0         interface{} `json:"multi_stream_0"`         // $26: unused?
-	MultiStream1         interface{} `json:"multi_stream_1"`         // $27: unused?
-	Debug0               interface{} `json:"debug_0"`                // $28: unused?
-	Debug1               interface{} `json:"debug_1"`                // $29: unused?
-	DNumber              float64     `json:"d_number"`               // $30: rcv[rx].rawinfos[STATUS_MER] - modinfo_S2[tempu].minmer
-	VideoType            string      `json:"video_type"`             // $31:
-	RollOff              int64       `json:"roll_off"`               // $32:
-	Antenna              string      `json:"antenna"`                // $33:
-	AudioType            string      `json:"audio_type"`             // $34:
-	TitleBar             string      `json:"title_bar"`              // $94:
-	VlcStops             int64       `json:"vlc_stops"`              // $96:
-	VlcExts              int64       `json:"vlc_exts"`               // $97:
-	ModeChanges          int64       `json:"mode_changes"`           // $98:
-	IPChanges            int64       `json:"ip_changes"`             // $99:
+	Index                int64            `json:"index"`              // $0
+	State                string           `json:"state"`              // $1: StateType
+	LNAGain              interface{}      `json:"lna_gain"`           // $2: unused?
+	PunctureRate         interface{}      `json:"puncture_rate"`      // $3: unused?
+	PowerI               interface{}      `json:"power_i"`            // $4: unused?
+	PowerO               interface{}      `json:"power_o"`            // $5: unused?
+	CarrierFrequency     float64          `json:"carrier_frequency"`  // $6: in MHz
+	ConstellationI       interface{}      `json:"constellation_i"`    // $7: unused?
+	ConstellationO       interface{}      `json:"constellation_o"`    // $8: unused?
+	SymbolRate           int64            `json:"symbol_rate"`        // $9: in kS
+	ViterbiErrorRate     interface{}      `json:"viterbi_error_rate"` // $10: unused?
+	Ber                  interface{}      `json:"ber"`                // $11: unused?
+	Mer                  float64          `json:"mer"`                // $12: in 0.1 dB
+	MerHistory           *ringbuffer.Ring `json:"mer_history"`
+	ServiceName          string           `json:"service_name"`           // $13: service name
+	ServiceProviderName  string           `json:"service_provider_name"`  // $14: provider name
+	TsNullPercentage     float64          `json:"ts_null_percentage"`     // $15: 99.9 * rcv[rx].nullpacketcountrx / (rcv[rx].packetcountrx + 1)
+	EsPid                interface{}      `json:"es_pid"`                 // $16: unused
+	EsType               interface{}      `json:"es_type"`                // $17: unused
+	ModulationCode       string           `json:"modulation_code"`        // $18: modulation + fec
+	FrameType            string           `json:"frame_type"`             // $19: 'L' ?
+	Pilots               string           `json:"pilots"`                 // $20: 'N' ?
+	ErrorsLDPCCount      interface{}      `json:"errors_ldpc_count"`      // $21: unused?
+	ErrorsBCHCount       interface{}      `json:"errors_bch_count"`       // $22: unused?
+	ErrorsBCHUncorrected interface{}      `json:"errors_bch_uncorrected"` // $23: unused?
+	LNBSupply            interface{}      `json:"lnb_supply"`             // $24: unused?
+	LNBPolarisationH     interface{}      `json:"lnb_polarisation_h"`     // $25: unused? - is referencedÏ
+	MultiStream0         interface{}      `json:"multi_stream_0"`         // $26: unused?
+	MultiStream1         interface{}      `json:"multi_stream_1"`         // $27: unused?
+	Debug0               interface{}      `json:"debug_0"`                // $28: unused?
+	Debug1               interface{}      `json:"debug_1"`                // $29: unused?
+	DNumber              float64          `json:"d_number"`               // $30: rcv[rx].rawinfos[STATUS_MER] - modinfo_S2[tempu].minmer
+	VideoType            string           `json:"video_type"`             // $31:
+	RollOff              int64            `json:"roll_off"`               // $32:
+	Antenna              string           `json:"antenna"`                // $33:
+	AudioType            string           `json:"audio_type"`             // $34:
+	TitleBar             string           `json:"title_bar"`              // $94:
+	VlcStops             int64            `json:"vlc_stops"`              // $96:
+	VlcExts              int64            `json:"vlc_exts"`               // $97:
+	ModeChanges          int64            `json:"mode_changes"`           // $98:
+	IPChanges            int64            `json:"ip_changes"`             // $99:
 }
 
 type Listener struct {
 	Receivers map[int64]*StatusEvent `json:"receivers"`
 }
 
-func New(n int64) *Listener {
+func New(n int64, historySize int) *Listener {
 	l := Listener{
 		Receivers: make(map[int64]*StatusEvent, n),
 	}
 	for i := int64(0); i < n; i++ {
-		l.Receivers[i] = &StatusEvent{}
+		l.Receivers[i] = &StatusEvent{
+			MerHistory: ringbuffer.New(historySize),
+		}
 	}
 	return &l
 }
@@ -161,6 +157,7 @@ func (L *Listener) parse(in string) error {
 			}
 			L.Receivers[index].Mer = value
 			promReceiverMer.WithLabelValues(fmt.Sprintf("%d", index+1)).Set(value)
+			L.Receivers[index].MerHistory.Add(floatHistory{Time: time.Now(), Value: value})
 		case "$13":
 			L.Receivers[index].ServiceName = parts[1]
 		case "$14":

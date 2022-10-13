@@ -13,7 +13,7 @@ type Api struct {
 
 func New(ip string, port int) (*Api, error) {
 	api := Api{
-		listener: events.New(4),
+		listener: events.New(4, 10),
 	}
 	go api.listener.Run(fmt.Sprintf("%s:%d", ip, port), nil)
 	return &api, nil
