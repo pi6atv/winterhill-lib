@@ -4,7 +4,7 @@
 <script>
 import LineChartComponent from "@/components/LineChartComponent";
 
-let index = 0
+// let index = 0
 
 export default {
   components: {LineChart: LineChartComponent},
@@ -14,15 +14,15 @@ export default {
       options: {
         elements: {
           point: {
-            radius: 0
+            radius: 3
           }
         },
         scales: {
           yAxes: [{
             ticks: {
-              // min: -100,
-              // max: 100,
-              beginAtZero: true
+              min: -100,
+              max: 100,
+              // beginAtZero: true
             }
           }],
           xAxes: [
@@ -41,26 +41,26 @@ export default {
                   },
                 },
               },
-              {
-                id: 'calls',
-                type: 'category',
-                position: 'top',
-                labels: this.signal?.map(item => { // going through time
-                      const now = new Date(item.Time)
-                      try {
-                        if (new Date(this.calls[index].start) <= now && !(new Date(this.calls[index].end) < now)) { // we passed a call event
-                          index += 1
-                          return this.calls[index-1].value
-                        }
-                      } catch (e) {
-                        return ""
-                      }
-                      return ""
-                    }),
-                ticks: {
-                  autoSkip: false,
-                },
-              },
+              // {
+              //   id: 'calls',
+              //   type: 'category',
+              //   position: 'top',
+              //   labels: this.signal?.map(item => { // going through time
+              //         const now = new Date(item.Time)
+              //         try {
+              //           if (new Date(this.calls[index].start) <= now && !(new Date(this.calls[index].end) < now)) { // we passed a call event
+              //             index += 1
+              //             return this.calls[index-1].value
+              //           }
+              //         } catch (e) {
+              //           return ""
+              //         }
+              //         return ""
+              //       }),
+              //   ticks: {
+              //     autoSkip: false,
+              //   },
+              // },
           ],
           title: {
             display: false,
@@ -87,7 +87,8 @@ export default {
               xAxisID: 'time',
               data: this.signal.map(item => {
                 // if (item.Value === 0) item.Value = -100
-                return {y: item.value, x: item.time}
+                if (item !== null) return {y: item.value, x: item.time}
+                return {y:-100, x:0}
               })
             },
         ],

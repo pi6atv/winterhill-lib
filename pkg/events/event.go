@@ -51,7 +51,7 @@ type StatusEvent struct {
 	MultiStream1         interface{}      `json:"multi_stream_1"`         // $27: unused?
 	Debug0               interface{}      `json:"debug_0"`                // $28: unused?
 	Debug1               interface{}      `json:"debug_1"`                // $29: unused?
-	DNumber              float64          `json:"d_number"`               // $30: rcv[rx].rawinfos[STATUS_MER] - modinfo_S2[tempu].minmer
+	DNumber              float64          `json:"d_number"`               // $30: MER value above minimum for decoding
 	VideoType            string           `json:"video_type"`             // $31:
 	RollOff              int64            `json:"roll_off"`               // $32:
 	Antenna              string           `json:"antenna"`                // $33:
@@ -130,6 +130,11 @@ func (L *Listener) parse(in string) error {
 	L.Receivers[index].Index = value // set the human-readable receiver index
 	promReceiverUpdate.WithLabelValues(fmt.Sprintf("%d", index+1)).Inc()
 
+	// MER isn't reported when there's no signal. Default it to -100
+	// FIXME: find absolute lowest possible MER
+	L.Receivers[index].Mer = -100
+	L.Receivers[index].DNumber = -100
+
 	// loop over all events
 	for _, line := range events[1:] {
 		//fmt.Printf("LINE: %s\n", line)
@@ -156,8 +161,6 @@ func (L *Listener) parse(in string) error {
 				return errors.Wrapf(err, "parsing MER: '%s'", parts[1])
 			}
 			L.Receivers[index].Mer = value
-			promReceiverMer.WithLabelValues(fmt.Sprintf("%d", index+1)).Set(value)
-			L.Receivers[index].MerHistory.Add(floatHistory{Time: time.Now(), Value: value})
 		case "$13":
 			L.Receivers[index].ServiceName = parts[1]
 		case "$14":
@@ -214,5 +217,10 @@ func (L *Listener) parse(in string) error {
 			L.Receivers[index].IPChanges = value
 		}
 	}
+
+	// because we set a default MER at the start, we always want to store it in the history here
+	promReceiverMer.WithLabelValues(fmt.Sprintf("%d", index+1)).Set(L.Receivers[index].Mer)
+	L.Receivers[index].MerHistory.Add(floatHistory{Time: time.Now(), Value: L.Receivers[index].Mer})
+	promReceiverDnumber.WithLabelValues(fmt.Sprintf("%d", index+1)).Set(L.Receivers[index].DNumber)
 	return nil
 }

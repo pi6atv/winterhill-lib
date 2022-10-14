@@ -20,6 +20,13 @@ var (
 		},
 		[]string{"receiver"},
 	)
+	promReceiverDnumber = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "winterhill_receiver_dnumber",
+			Help: "D number, for the given receiver",
+		},
+		[]string{"receiver"},
+	)
 	promReceiverSR = promauto.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "winterhill_receiver_symbol_rate",
