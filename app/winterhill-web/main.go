@@ -21,8 +21,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	http.HandleFunc("/api/status", webApi.StatusHandler)
-	http.Handle("/", http.FileServer(http.FS(subdir)))
+	http.HandleFunc("/winterhill/api/status", webApi.StatusHandler)
+	http.Handle("/winterhill/", http.StripPrefix("/winterhill/", http.FileServer(http.FS(subdir))))
 	http.Handle("/metrics", promhttp.Handler())
 	fmt.Println("starting webserver")
 	_ = http.ListenAndServe(":8080", nil)
