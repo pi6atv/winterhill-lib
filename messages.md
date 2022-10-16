@@ -41,6 +41,16 @@ Supported args:
 * VOLTAGE (0|13|18)
 * 22KHZ (OFF|ON)
 
+
+### mandatory fields
+- rx
+- freq
+- loc (offset) <- can't get this from events?
+- symbol rate
+- antenna
+- voltage VGX or VGY or VOLTAGE
+
+
 ## Status Format (port 9901)
 * `$`
 * `<index>`

@@ -63,6 +63,28 @@ type StatusEvent struct {
 	IPChanges            int64            `json:"ip_changes"`             // $99:
 }
 
+func StateToFloat(in string) float64 {
+	switch in {
+	case "idle":
+		return 82
+	case "timeout":
+		return 81
+	case "lost":
+		return 80
+	case "search":
+		return 0
+	case "header":
+		return 1
+	case "DVB-S2":
+		return 2
+	case "DVB-S":
+		return 3
+
+	default:
+		return -1
+	}
+}
+
 type Listener struct {
 	Receivers map[int64]*StatusEvent `json:"receivers"`
 }
@@ -142,12 +164,14 @@ func (L *Listener) parse(in string) error {
 		switch parts[0] {
 		case "$1":
 			L.Receivers[index].State = parts[1]
+			promReceiverState.WithLabelValues(fmt.Sprintf("%d", index+1)).Set(StateToFloat(L.Receivers[index].State))
 		case "$6":
 			value, err := strconv.ParseFloat(parts[1], 64)
 			if err != nil {
 				return errors.Wrapf(err, "parsing frequency: '%s'", parts[1])
 			}
 			L.Receivers[index].CarrierFrequency = value
+			promReceiverFreq.WithLabelValues(fmt.Sprintf("%d", index+1)).Set(L.Receivers[index].CarrierFrequency)
 		case "$9":
 			value, err := strconv.ParseInt(parts[1], 10, 64)
 			if err != nil {

@@ -34,4 +34,18 @@ var (
 		},
 		[]string{"receiver"},
 	)
+	promReceiverState = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "winterhill_receiver_status",
+			Help: "Status, for the given receiver",
+		},
+		[]string{"receiver"},
+	)
+	promReceiverFreq = promauto.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "winterhill_receiver_freq",
+			Help: "Frequency, for the given receiver",
+		},
+		[]string{"receiver"},
+	)
 )
