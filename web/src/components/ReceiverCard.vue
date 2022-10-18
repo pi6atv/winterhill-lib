@@ -62,7 +62,7 @@ import SignalChartComponent from "@/components/SignalChartComponent";
           console.log(`${key}: ${value}`);
           if (value === null) continue
           if (key.endsWith("_history")) continue
-          // if (key in ("asdasd")) continue
+          // if ([].indexOf(key) !== -1) continue
           result[key] = value
         }
         return result

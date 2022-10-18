@@ -85,10 +85,8 @@ export default {
               borderColor: '#2c4df5',
               fill: false,
               xAxisID: 'time',
-              data: this.signal.map(item => {
-                // if (item.Value === 0) item.Value = -100
-                if (item !== null) return {y: item.value, x: item.time}
-                return {y:-100, x:0}
+              data: this.signal.filter(item => {return item !== null}).map(item => {
+                return {y: item.value, x: item.time}
               })
             },
         ],
