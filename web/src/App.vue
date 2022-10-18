@@ -81,7 +81,7 @@ export default {
   methods: {
     receiverIcon: function (status) {
       if (status === "lost") { return "mdi-wifi-strength-3-alert" }
-      if (status in ["header", "DVB-S2", "DVB-S"]) {
+      if (["header", "DVB-S2", "DVB-S"].indexOf(status) !== -1) {
         return "mdi-wifi"
       }
       return "mdi-wifi-strength-outline"
