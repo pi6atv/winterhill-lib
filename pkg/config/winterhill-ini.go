@@ -34,8 +34,8 @@ func New(path string) (*WinterhillConfig, error) {
 
 	for _, line := range strings.Split(string(content), "\n") {
 		if strings.HasPrefix(line, "COMMAND = [to@wh]") {
-			parts := strings.SplitN(line, "COMMAND = ", 2)
-			command, err := commands.ParseWhShort(strings.TrimSuffix(parts[1], " "), ",")
+			parts := strings.SplitN(strings.TrimRight(line, " "), "COMMAND = ", 2)
+			command, err := commands.ParseWhShort(parts[1], ",")
 			if err != nil {
 				return nil, errors.Wrapf(err, "failed to parse: '%s", parts[1])
 			}
