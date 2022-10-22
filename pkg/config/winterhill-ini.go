@@ -14,11 +14,11 @@ type WinterhillConfig struct {
 
 // ReceiverConfig holds the startup config for a single receiver
 type ReceiverConfig struct {
-	Index      int64   `json:"index"`
-	Frequency  float64 `json:"frequency"`
-	Offset     float64 `json:"offset"`
-	SymbolRate int64   `json:"symbol_rate"`
-	Antenna    string  `json:"antenna"`
+	Index      int64  `json:"index"`
+	Frequency  int64  `json:"frequency"`
+	Offset     int64  `json:"offset"`
+	SymbolRate int64  `json:"symbol_rate"`
+	Antenna    string `json:"antenna"`
 }
 
 // New parses the winterhill.ini file. Default path is ~pi/winterhill/winterhill.ini

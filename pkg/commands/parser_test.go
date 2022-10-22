@@ -21,7 +21,7 @@ func TestParseWhShort(t *testing.T) {
 			args: args{in: "[to@wh],rcv=1,freq=144600,offset=0000000,srate=125,fplug=A", sep: ","},
 			want: WhShort{
 				Index:      1,
-				Frequency:  144.6,
+				Frequency:  144600,
 				Offset:     0,
 				SymbolRate: 125,
 				Antenna:    "A",

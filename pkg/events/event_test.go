@@ -31,6 +31,8 @@ func TestListener_parse(t *testing.T) {
 					VlcStops:         1,
 					VlcExts:          0,
 					IPChanges:        2,
+					Mer:              -100,
+					DNumber:          -100,
 				},
 			},
 		},
@@ -117,7 +119,7 @@ func TestListener_parse(t *testing.T) {
 			name: "error flow: invalid freq",
 			args: args{in: "$0,1\r\n$6,abcd"},
 			want: map[int64]StatusEvent{
-				0: {Index: 1},
+				0: {Index: 1, Mer: -100, DNumber: -100},
 				1: {},
 				2: {},
 				3: {},
@@ -134,7 +136,6 @@ func TestListener_parse(t *testing.T) {
 			for index, receiver := range tt.want {
 				// we're not testing the history here
 				receiver.MerHistory = L.Receivers[index].MerHistory
-
 				assert.Equal(t, receiver, *L.Receivers[index])
 			}
 		})
