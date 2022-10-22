@@ -5,9 +5,18 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
 <template>
   <v-row>
     <v-col>
-      <signal-chart
-          v-bind:signal="receiver.mer_history"
-      />
+      <v-row>
+        <signal-chart
+            v-bind:signal="receiver.mer_history"
+        />
+      </v-row>
+      <v-row>
+        <v-card v-if="config !== null">
+          <v-card-title>settings</v-card-title>
+<!--          set SR -->
+          {{ config }}
+        </v-card>
+      </v-row>
     </v-col>
     <v-col>
       <v-card>
@@ -50,7 +59,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
 import SignalChartComponent from "@/components/SignalChartComponent";
   export default {
     name: 'ReceiverCard',
-    props: ['receiver'],
+    props: ['receiver', 'config'],
     components: {SignalChart: SignalChartComponent},
 
     data: () => ({

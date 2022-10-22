@@ -5,7 +5,7 @@ module.exports = {
   ],
   devServer: {
     proxy: {
-      "^/winterhill/api/status": {
+      "^/winterhill/api/": {
         // target: "https://webcontrol.pi6atv.ampr.org",
         target: "http://localhost:8080",
         // pathRewrite: { '^/drx': '/receivers' },

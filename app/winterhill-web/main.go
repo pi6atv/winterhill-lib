@@ -22,6 +22,7 @@ func main() {
 		panic(err)
 	}
 	http.HandleFunc("/winterhill/api/status", webApi.StatusHandler)
+	http.HandleFunc("/winterhill/api/config", webApi.ConfigHandler)
 	http.Handle("/winterhill/", http.StripPrefix("/winterhill/", http.FileServer(http.FS(subdir))))
 	http.Handle("/metrics", promhttp.Handler())
 	fmt.Println("starting webserver")

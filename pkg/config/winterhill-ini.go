@@ -23,6 +23,9 @@ type ReceiverConfig struct {
 
 // New parses the winterhill.ini file. Default path is ~pi/winterhill/winterhill.ini
 func New(path string) (*WinterhillConfig, error) {
+	if path == "" {
+		path = "/home/pi/winterhill/winterhill.ini"
+	}
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return nil, errors.Wrapf(err, "reading config file '%s'", path)
@@ -34,7 +37,7 @@ func New(path string) (*WinterhillConfig, error) {
 
 	for _, line := range strings.Split(string(content), "\n") {
 		if strings.HasPrefix(line, "COMMAND = [to@wh]") {
-			parts := strings.SplitN(strings.TrimRight(line, " "), "COMMAND = ", 2)
+			parts := strings.SplitN(strings.TrimRight(line, " \t"), "COMMAND = ", 2)
 			command, err := commands.ParseWhShort(parts[1], ",")
 			if err != nil {
 				return nil, errors.Wrapf(err, "failed to parse: '%s", parts[1])

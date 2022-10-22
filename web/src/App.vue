@@ -41,7 +41,7 @@
             :key="index"
             :value="index"
         >
-          <ReceiverCard :receiver="receiver"/>
+          <ReceiverCard :receiver="receiver" :config="getConfig(index)"/>
         </v-tab-item>
       </v-tabs-items>
 <!--      <v-row>-->
@@ -77,8 +77,17 @@ export default {
   data: () => ({
     receivers: [],
     error: "",
+    config: {},
   }),
   methods: {
+    getConfig: function(index) {
+      try {
+        return this.config.receivers[index]
+      } catch (e) {
+        return null
+      }
+    },
+
     receiverIcon: function (status) {
       if (status === "lost") { return "mdi-wifi-strength-3-alert" }
       if (status === "header") return "mdi-wifi"
@@ -87,6 +96,21 @@ export default {
       }
       return "mdi-wifi-strength-outline"
     },
+    updateConfig() {
+      fetch("api/config")
+          .then((response) => {
+            if (response.ok) {
+              this.error = ""
+              return response.json();
+            } else {
+              this.error = "failed to fetch config"
+              return {}
+            }
+          })
+          .then(data => {
+            this.config = data
+          })
+    },
     updateData() {
       fetch("api/status")
           .then((response) => {
@@ -94,17 +118,17 @@ export default {
               this.error = ""
               return response.json();
             } else {
-              this.error = "failed to fetch layout status"
+              this.error = "failed to fetch receivers statuses"
               return {}
             }
           })
           .then(data => {
-            console.log("DATA", data)
             this.receivers = data
           })
     },
   },
   async created() {
+    this.updateConfig();
     this.updateData();
     setInterval(this.updateData.bind(this), 5000)
   },

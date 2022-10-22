@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"strconv"
 	"strings"
@@ -21,7 +20,6 @@ func ParseWhShort(in string, sep string) (*WhShort, error) {
 	result := WhShort{}
 	for _, segment := range strings.Split(in, sep) {
 		keyValue := strings.SplitN(segment, "=", 2)
-		fmt.Printf("DEBUG: segment:%s keyvalue=%v\n", segment, keyValue)
 		switch strings.ToUpper(keyValue[0]) {
 		case "RCV":
 			value, err := strconv.ParseInt(keyValue[1], 10, 64)
