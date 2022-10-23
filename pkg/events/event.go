@@ -152,10 +152,10 @@ func (L *Listener) parse(in string) error {
 	L.Receivers[index].Index = value // set the human-readable receiver index
 	promReceiverUpdate.WithLabelValues(fmt.Sprintf("%d", index+1)).Inc()
 
-	// MER isn't reported when there's no signal. Default it to 0
+	// MER isn't reported when there's no signal. Default it to -100
 	// FIXME: find absolute lowest possible MER
-	L.Receivers[index].Mer = 0
-	L.Receivers[index].DNumber = 0
+	L.Receivers[index].Mer = -100
+	L.Receivers[index].DNumber = -100
 
 	// loop over all events
 	for _, line := range events[1:] {
