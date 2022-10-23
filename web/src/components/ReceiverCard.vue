@@ -45,6 +45,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
                   <v-col>
                     <v-btn
                         @click="send_symbolrate"
+                        disabled
                     >
                       <v-progress-circular
                           v-if="config.symbol_rate !== setSymbolRate"
