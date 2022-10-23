@@ -31,24 +31,34 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
                   <b>{{ item.name }}:</b>
                 </span>
               </v-list-item-content>
-              <v-list-item-icon v-if="config.symbol_rate !== symbolRate && item.key === 'symbol_rate'">
-                <v-progress-circular
-                  indeterminate
-                  color="primary"
-                >
-                </v-progress-circular>
-              </v-list-item-icon>
               <v-list-item-content class="align-end">
-                <v-combobox
-                    :items="symbolRates"
-                    v-model="symbolRate"
-                    label="aanpassen (werkt nog niet)"
-                    outlined
-                    dense
-                    @change="send_symbolrate"
-                    v-if="item.key === 'symbol_rate'"
-                ></v-combobox>
+              <span v-if="item.key === 'symbol_rate'">
+                <v-row>
+                  <v-col>
+                    <v-combobox
+                        :items="symbolRates"
+                        v-model="wantedSymbolRate"
+                        outlined
+                        dense
+                    ></v-combobox>
+                  </v-col>
+                  <v-col>
+                    <v-btn
+                        @click="send_symbolrate"
+                    >
+                      <v-progress-circular
+                          v-if="config.symbol_rate !== setSymbolRate"
+                          indeterminate
+                          color="primary"
+                      >
+                      </v-progress-circular>
+                      <span v-else>Opslaan</span>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </span>
                 <span v-else>
+                    <span v-if="item.key==='antenna'">{{config.antenna}} -</span>
                     {{ receiver[item.key] }}
                   </span>
               </v-list-item-content>
@@ -91,84 +101,6 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
   </v-container>
 </template>
 
-<!--  <v-row>-->
-<!--    <v-col>-->
-<!--      <signal-chart-->
-<!--          v-bind:signal="receiver.mer_history"-->
-<!--      />-->
-<!--      <v-card v-if="config !== null">-->
-<!--        <v-card-title>settings</v-card-title>-->
-<!--        <v-list>-->
-<!--          <v-list-item>-->
-<!--            <v-list-item-icon v-if="config.symbol_rate !== symbolRate">-->
-<!--              <v-progress-circular-->
-<!--                indeterminate-->
-<!--                color="primary"-->
-<!--              >-->
-<!--              </v-progress-circular>-->
-<!--            </v-list-item-icon>-->
-<!--            <v-list-item-content>-->
-<!--&lt;!&ndash;            <v-list-item-title>Symbol rate</v-list-item-title>&ndash;&gt;-->
-<!--&lt;!&ndash;            <v-list-item-subtitle>&ndash;&gt;-->
-<!--              <v-combobox-->
-<!--                  :items="symbolRates"-->
-<!--                  v-model="symbolRate"-->
-<!--                  label="Symbol Rate"-->
-<!--                  outlined-->
-<!--                  dense-->
-<!--                  @change="send_symbolrate"-->
-<!--              ></v-combobox>-->
-<!--&lt;!&ndash;            </v-list-item-subtitle>&ndash;&gt;-->
-<!--            </v-list-item-content>-->
-<!--          </v-list-item>-->
-<!--        </v-list>-->
-<!--      </v-card>-->
-<!--    </v-col>-->
-<!--    <v-col>-->
-<!--      <v-card>-->
-<!--&lt;!&ndash;        <v-expansion-panels>&ndash;&gt;-->
-<!--&lt;!&ndash;          <v-expansion-panel>&ndash;&gt;-->
-<!--&lt;!&ndash;            <v-expansion-panel-header>&ndash;&gt;-->
-<!--              <v-card-title>{{receiver.title_bar}}</v-card-title>-->
-<!--&lt;!&ndash;            </v-expansion-panel-header>&ndash;&gt;-->
-<!--&lt;!&ndash;            <v-expansion-panel-content>&ndash;&gt;-->
-<!--              <v-list dense>-->
-<!--                <v-list-item v-for="item in infoItems" v-bind:key="item.header">-->
-<!--                  <v-list-item-content>-->
-<!--                    <span><b>{{ item.header }}</b></span>-->
-<!--                  </v-list-item-content>-->
-<!--                  <v-list-item-content class="align-end">-->
-<!--                    <span>{{item.value}}</span>-->
-<!--                  </v-list-item-content>-->
-<!--                </v-list-item>-->
-<!--                <v-list-item-->
-<!--                    v-for="(value,key) in non_empty_values()"-->
-<!--                    v-bind:key="key"-->
-<!--                    style="min-height: 30px"-->
-<!--                >-->
-<!--                  <v-list-item-content>-->
-<!--                    <span>-->
-<!--                      <b>{{ key }}:</b>-->
-<!--                    </span>-->
-<!--                  </v-list-item-content>-->
-<!--                  <v-list-item-content class="align-end">-->
-<!--                    <span>-->
-<!--                    {{ value }}-->
-<!--                  </span>-->
-<!--                  </v-list-item-content>-->
-<!--                </v-list-item>-->
-<!--              </v-list>-->
-<!--&lt;!&ndash;              <ul>&ndash;&gt;-->
-<!--&lt;!&ndash;                <li v-for="(value,key) in receiver" v-bind:key="key">{{key}}: {{value}}</li>&ndash;&gt;-->
-<!--&lt;!&ndash;              </ul>&ndash;&gt;-->
-<!--&lt;!&ndash;            </v-expansion-panel-content>&ndash;&gt;-->
-<!--&lt;!&ndash;          </v-expansion-panel>&ndash;&gt;-->
-<!--&lt;!&ndash;        </v-expansion-panels>&ndash;&gt;-->
-<!--      </v-card>-->
-<!--    </v-col>-->
-<!--  </v-row>-->
-<!-- </template>-->
-
 <script>
 import SignalChartComponent from "@/components/SignalChartComponent";
   export default {
@@ -205,7 +137,7 @@ import SignalChartComponent from "@/components/SignalChartComponent";
                 {name: "D-nummer", key: "d_number"},
                 {name: "Modulatie", key: "modulation_code"},
                 {name: "Symbol rate", key: "symbol_rate"},
-                {name: "Antenne", key: "antenna"},
+                {name: "Antenne input", key: "antenna"},
               ], flex: 3 },
             { title: 'Transport Stream', items: [
                 {name: "null percentage", key: "ts_null_percentage"},
@@ -223,26 +155,18 @@ import SignalChartComponent from "@/components/SignalChartComponent";
               ], flex: 3 },
           ],
       symbolRates: [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500],
-      symbolRate: "select",
+      wantedSymbolRate: "select",
+      setSymbolRate: null,
     }),
     methods: {
       send_symbolrate() {
-        console.log("SETTING SYMBOL RATE TO", this.symbolRate)
-      },
-      non_empty_values() {
-        let result = {}
-        for (const [key, value] of Object.entries(this.receiver)) {
-          // console.log(`${key}: ${value}`);
-          if (value === null) continue
-          if (key.endsWith("_history")) continue
-          // if ([].indexOf(key) !== -1) continue
-          result[key] = value
-        }
-        return result
+        this.setSymbolRate = this.wantedSymbolRate
+        console.log("SETTING SYMBOL RATE TO", this.setSymbolRate)
       },
     },
     async created() {
-      this.symbolRate = this.config.symbol_rate
+      this.setSymbolRate = this.config.symbol_rate
+      this.wantedSymbolRate = this.config.symbol_rate
     },
   }
 </script>
