@@ -134,6 +134,9 @@ export default {
             }
           })
           .then(data => {
+            for (let index=0; index<4; index++) {
+              data[index].carrier_frequency = [144.6,436,437,1245][index]
+            }
             this.receivers = data
           })
     },

@@ -20,7 +20,7 @@ export default {
         scales: {
           yAxes: [{
             ticks: {
-              // min: 0,
+              min: -100,
               // max: 100,
               // beginAtZero: true
             }

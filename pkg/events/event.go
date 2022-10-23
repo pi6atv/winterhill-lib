@@ -18,6 +18,11 @@ type floatHistory struct {
 	Value float64   `json:"value"`
 }
 
+type stringHistory struct {
+	Time  time.Time `json:"time"`
+	Value string    `json:"value"`
+}
+
 type StatusEvent struct {
 	lock                 sync.Mutex
 	Index                int64            `json:"index"`              // $0
@@ -34,7 +39,8 @@ type StatusEvent struct {
 	Ber                  interface{}      `json:"ber"`                // $11: unused?
 	Mer                  float64          `json:"mer"`                // $12: in 0.1 dB
 	MerHistory           *ringbuffer.Ring `json:"mer_history"`
-	ServiceName          string           `json:"service_name"`           // $13: service name
+	ServiceName          string           `json:"service_name"` // $13: service name
+	ServiceHistory       *ringbuffer.Ring `json:"service_history"`
 	ServiceProviderName  string           `json:"service_provider_name"`  // $14: provider name
 	TsNullPercentage     float64          `json:"ts_null_percentage"`     // $15: 99.9 * rcv[rx].nullpacketcountrx / (rcv[rx].packetcountrx + 1)
 	EsPid                interface{}      `json:"es_pid"`                 // $16: unused
@@ -95,7 +101,8 @@ func New(n int64, historySize int) *Listener {
 	}
 	for i := int64(0); i < n; i++ {
 		l.Receivers[i] = &StatusEvent{
-			MerHistory: ringbuffer.New(historySize),
+			MerHistory:     ringbuffer.New(historySize),
+			ServiceHistory: ringbuffer.New(historySize),
 		}
 	}
 	return &l
@@ -186,6 +193,9 @@ func (L *Listener) parse(in string) error {
 			}
 			L.Receivers[index].Mer = value
 		case "$13":
+			if strings.HasPrefix(L.Receivers[index].State, "DVB") && L.Receivers[index].ServiceName != parts[1] {
+				L.Receivers[index].ServiceHistory.Add(stringHistory{Time: time.Now(), Value: parts[1]})
+			}
 			L.Receivers[index].ServiceName = parts[1]
 		case "$14":
 			L.Receivers[index].ServiceProviderName = parts[1]

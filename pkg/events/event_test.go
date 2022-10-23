@@ -136,6 +136,7 @@ func TestListener_parse(t *testing.T) {
 			for index, receiver := range tt.want {
 				// we're not testing the history here
 				receiver.MerHistory = L.Receivers[index].MerHistory
+				receiver.ServiceHistory = L.Receivers[index].ServiceHistory
 				assert.Equal(t, receiver, *L.Receivers[index])
 			}
 		})

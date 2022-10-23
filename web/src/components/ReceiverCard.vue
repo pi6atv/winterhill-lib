@@ -79,21 +79,20 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
               class="overflow-y-auto"
               style="max-height: 300px"
           >
-            <span>(Werkt nog niet)</span>
             <v-timeline-item
                 v-for="event in call_log"
-                :key="event.start"
+                :key="event.time"
                 color="blue"
                 small
                 fill-dot
             >
               <strong>{{ event.value }}</strong>
               <div class="text-caption">
-                start: {{ event.start | formatDate }}
+                start: {{ event.time | formatDate }}
               </div>
-              <div class="text-caption" v-if="event.end !== 0">
-                end: {{ event.end | formatDate }}
-              </div>
+<!--              <div class="text-caption" v-if="event.end !== 0">-->
+<!--                end: {{ event.end | formatDate }}-->
+<!--              </div>-->
             </v-timeline-item>
           </v-timeline>
         </v-card>
@@ -104,16 +103,26 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
 
 <script>
 import SignalChartComponent from "@/components/SignalChartComponent";
+import moment from 'moment';
+import Vue from "vue";
+
+Vue.filter('formatDate', function(value) {
+  if (value) {
+    return moment(String(value)).format('HH:mm:ss')
+  }
+});
+
   export default {
     name: 'ReceiverCard',
     props: ['receiver', 'config'],
     components: {SignalChart: SignalChartComponent},
     computed: {
       call_log () {
-        let logs = null // this.receiver.metrics['ProviderName'].history?.events
-        if (logs !== null)
-          return logs.reverse()
-        return null
+        return this.receiver.service_history.filter(item => item!==null ).reverse()
+        // let logs = this.receiver.service_history
+        // if (logs !== null)
+        //   return logs.reverse()
+        // return null
       },
       cols () {
         console.log(this.$vuetify.breakpoint.name)
