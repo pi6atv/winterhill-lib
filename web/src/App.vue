@@ -13,10 +13,10 @@
           v-model="tab"
           show-arrows
       >
-<!--        <v-tab href="#info">-->
-<!--          Info-->
-<!--          <v-icon>md-info</v-icon>-->
-<!--        </v-tab>-->
+        <v-tab href="#info">
+          Info
+          <v-icon>md-info</v-icon>
+        </v-tab>
         <v-tab
             v-for="(receiver, index) in receivers"
             v-bind:href="'#' + index"
@@ -41,6 +41,9 @@
         <div style="text-align: center;"><b>Deze pagina is nog in ontwerp!</b></div>
       </v-banner>
       <v-tabs-items v-model="tab">
+        <v-tab-item value="info">
+          <Guide/>
+        </v-tab-item>
         <v-tab-item
             v-for="(receiver, index) in receivers"
             :key="index"
@@ -49,23 +52,20 @@
           <ReceiverCard :receiver="receiver" :config="getConfig(index)"/>
         </v-tab-item>
       </v-tabs-items>
-<!--      <v-row>-->
-<!--        <v-col v-for="index in 4" v-bind:key="index">-->
-<!--          <ReceiverCard :receiver="receivers[index-1]"/>-->
-<!--        </v-col>-->
-<!--      </v-row>-->
     </v-main>
   </v-app>
 </template>
 
 <script>
 import ReceiverCard from './components/ReceiverCard';
+import GuideComponent from "@/components/GuideComponent";
 
 export default {
   name: 'App',
 
   components: {
     ReceiverCard: ReceiverCard,
+    Guide: GuideComponent,
   },
 
   computed: {
