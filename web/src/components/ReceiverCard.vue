@@ -7,7 +7,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
     <v-row>
       <v-col :cols="cols">
         <v-card>
-          <v-card-title>Signal</v-card-title>
+          <v-card-title>MER</v-card-title>
             <signal-chart
                 v-bind:signal="receiver.mer_history"
             />
@@ -53,7 +53,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
                           color="primary"
                       >
                       </v-progress-circular>
-                      <span v-else>Opslaan</span>
+                      <span v-else>Set</span>
                     </v-btn>
                   </v-col>
                 </v-row>
