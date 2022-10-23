@@ -20,9 +20,9 @@ export default {
         scales: {
           yAxes: [{
             ticks: {
-              min: -100,
+              min: 0,
               max: 100,
-              // beginAtZero: true
+              beginAtZero: true
             }
           }],
           xAxes: [
