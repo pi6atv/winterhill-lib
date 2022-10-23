@@ -35,12 +35,12 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
               <span v-if="item.key === 'symbol_rate'">
                 <v-row>
                   <v-col>
-                    <v-combobox
+                    <v-select
                         :items="symbolRates"
                         v-model="wantedSymbolRate"
                         outlined
                         dense
-                    ></v-combobox>
+                    ></v-select>
                   </v-col>
                   <v-col>
                     <v-btn
@@ -58,11 +58,11 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
                   </v-col>
                 </v-row>
               </span>
-                <span v-else>
-                    <span v-if="item.key==='antenna'">{{config.antenna}} -</span>
-                    {{ receiver[item.key] }}
-                  </span>
-              </v-list-item-content>
+              <span v-else>
+                  <span v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</span>
+                  <span v-else>{{ receiver[item.key] }}</span>
+                </span>
+            </v-list-item-content>
             </v-list-item>
           </v-list>
         </v-card>
@@ -127,6 +127,11 @@ import SignalChartComponent from "@/components/SignalChartComponent";
         }
         return 1
       },
+      symbolRates () {
+        return [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500].map(value => {
+          return {value: value, text: value===this.config['symbol_rate']?"*"+value:value}
+        })
+      }
     },
     data: () => ({
       cards:
@@ -155,8 +160,7 @@ import SignalChartComponent from "@/components/SignalChartComponent";
                 {name: "Coding type", key: "audio_type"},
               ], flex: 3 },
           ],
-      symbolRates: [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500],
-      wantedSymbolRate: "select",
+      wantedSymbolRate: "--",
       setSymbolRate: null,
     }),
     methods: {
