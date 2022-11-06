@@ -22,9 +22,12 @@ type WhShort struct {
 
 // [to@wh],rcv=1,freq=144600,offset=0000000,srate=125,fplug=A
 func (W WhShort) String() string {
-	result := fmt.Sprintf("[to@wh] rcv=%d freq=%d offset=%d srate=%d fplug=%s voltage=%d",
-		W.Index, W.Frequency, W.Offset, W.SymbolRate, W.Antenna, W.Voltage,
+	result := fmt.Sprintf("[to@wh] rcv=%d freq=%d offset=%d srate=%d fplug=%s",
+		W.Index, W.Frequency, W.Offset, W.SymbolRate, W.Antenna,
 	)
+	if W.Voltage != 0 {
+		result = fmt.Sprintf("%s voltage=%d", result, W.Voltage)
+	}
 	if W.Prg != 0 {
 		result = fmt.Sprintf("%s prg=%d", result, W.Prg)
 	}
@@ -41,7 +44,8 @@ func (W WhShort) String() string {
 }
 
 // Send will send the command to remote
-func (W WhShort) Send(remote string) error {
+func (W WhShort) Send(host string, basePort int64) error {
+	remote := fmt.Sprintf("%s:%d", host, basePort+W.Index)
 	conn, err := net.Dial("udp", remote)
 	if err != nil {
 		return errors.Wrapf(err, "connecting to %s", remote)

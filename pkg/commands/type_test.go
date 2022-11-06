@@ -31,9 +31,8 @@ func TestWhShort_String(t *testing.T) {
 				Offset:     3,
 				SymbolRate: 4,
 				Antenna:    "A",
-				Voltage:    6,
 			},
-			want: "[to@wh] rcv=1 freq=2 offset=3 srate=4 fplug=A voltage=6",
+			want: "[to@wh] rcv=1 freq=2 offset=3 srate=4 fplug=A",
 		},
 		{
 			name: "happy path - all fields",

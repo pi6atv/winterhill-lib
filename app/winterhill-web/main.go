@@ -24,7 +24,7 @@ func main() {
 		panic(err)
 	}
 
-	commandApi, err := commandapi.New("127.0.0.1", 9921)
+	commandApi, err := commandapi.New("127.0.0.1", 9920)
 	if err != nil {
 		panic(err)
 	}
@@ -34,9 +34,8 @@ func main() {
 	router.Path("/winterhill/api/status").HandlerFunc(statusApi.StatusHandler)
 	router.Path("/winterhill/api/config").HandlerFunc(statusApi.ConfigHandler)
 	router.Path("/winterhill/api/set/srate/{receiver:[1-4]}/{srate:[0-9]+}").HandlerFunc(commandApi.SetSymbolRateHandler).Methods("POST")
-	router.Path("/winterhill/").Handler(http.StripPrefix("/winterhill/", http.FileServer(http.FS(subdir))))
+	router.PathPrefix("/winterhill/").Handler(http.StripPrefix("/winterhill/", http.FileServer(http.FS(subdir))))
 	router.Path("/metrics").Handler(promhttp.Handler())
-
 	fmt.Println("starting webserver")
 	_ = http.ListenAndServe(":8080", router)
 }
