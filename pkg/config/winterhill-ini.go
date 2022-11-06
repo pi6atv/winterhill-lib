@@ -19,6 +19,7 @@ type ReceiverConfig struct {
 	Offset     int64  `json:"offset"`
 	SymbolRate int64  `json:"symbol_rate"`
 	Antenna    string `json:"antenna"`
+	Voltage    int64  `json:"voltage"`
 }
 
 // New parses the winterhill.ini file. Default path is ~pi/winterhill/winterhill.ini
@@ -48,6 +49,7 @@ func New(path string) (*WinterhillConfig, error) {
 				Offset:     command.Offset,
 				SymbolRate: command.SymbolRate,
 				Antenna:    command.Antenna,
+				Voltage:    command.Voltage,
 			}
 		}
 	}

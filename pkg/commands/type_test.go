@@ -33,7 +33,7 @@ func TestWhShort_String(t *testing.T) {
 				Antenna:    "A",
 				Voltage:    6,
 			},
-			want: "",
+			want: "[to@wh] rcv=1 freq=2 offset=3 srate=4 fplug=A voltage=6",
 		},
 		{
 			name: "happy path - all fields",
@@ -49,7 +49,7 @@ func TestWhShort_String(t *testing.T) {
 				Voltage:    6,
 				Tone:       true,
 			},
-			want: "",
+			want: "[to@wh] rcv=1 freq=2 offset=3 srate=4 fplug=A voltage=6 prg=5 vgx=B vgy=C 22khz=ON",
 		},
 	}
 	for _, tt := range tests {

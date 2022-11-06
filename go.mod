@@ -3,6 +3,7 @@ module github.com/pi6atv/winterhill-lib
 go 1.19
 
 require (
+	github.com/gorilla/mux v1.8.0
 	github.com/libp2p/go-reuseport v0.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.13.0

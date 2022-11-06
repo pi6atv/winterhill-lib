@@ -175,7 +175,16 @@ Vue.filter('formatDate', function(value) {
     methods: {
       send_symbolrate() {
         this.setSymbolRate = this.wantedSymbolRate
-        console.log("SETTING SYMBOL RATE TO", this.setSymbolRate)
+        fetch("api/set/srate/"+this.receiver.index+"/"+this.wantedSymbolRate, {method: "POST"})
+            .then((response) => {
+              if (response.ok) {
+                this.error = ""
+              } else {
+                this.error = "failed to set symbol rate"
+                console.log(response)
+              }
+            })
+        // console.log("SETTING SYMBOL RATE TO", this.setSymbolRate)
       },
     },
     async created() {
