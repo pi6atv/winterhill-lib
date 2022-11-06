@@ -3,6 +3,7 @@ package status_api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pi6atv/winterhill-lib/internal/web/metrics"
 	"github.com/pi6atv/winterhill-lib/pkg/config"
 	"github.com/pi6atv/winterhill-lib/pkg/events"
 	"github.com/pkg/errors"
@@ -29,12 +30,14 @@ func New(ip string, port int) (*Api, error) {
 
 // StatusHandler returns the Receivers
 func (A *Api) StatusHandler(w http.ResponseWriter, r *http.Request) {
+	metrics.RequestMetrics.WithLabelValues("status").Inc()
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(A.listener.Receivers)
 }
 
 func (A *Api) ConfigHandler(w http.ResponseWriter, r *http.Request) {
+	metrics.RequestMetrics.WithLabelValues("config").Inc()
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(*A.config)

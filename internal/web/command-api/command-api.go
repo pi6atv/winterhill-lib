@@ -3,6 +3,7 @@ package command_api
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/pi6atv/winterhill-lib/internal/web/metrics"
 	"github.com/pi6atv/winterhill-lib/pkg/commands"
 	"github.com/pi6atv/winterhill-lib/pkg/config"
 	"github.com/pkg/errors"
@@ -33,15 +34,18 @@ func New(ip string, port int) (*Api, error) {
 
 // SetSymbolRateHandler will set the symbol rate for the specified receiver
 func (A *Api) SetSymbolRateHandler(w http.ResponseWriter, r *http.Request) {
+	metrics.RequestMetrics.WithLabelValues("set/srate").Inc()
 	vars := mux.Vars(r)
 	receiver, err := strconv.ParseInt(vars["receiver"], 10, 64)
 	if err != nil {
+		metrics.RequestErrorMetrics.WithLabelValues("set/srate").Inc()
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	srate, err := strconv.ParseInt(vars["srate"], 10, 64)
 	if err != nil || !IsvalidSymbolRate(srate) {
+		metrics.RequestErrorMetrics.WithLabelValues("set/srate").Inc()
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -50,6 +54,7 @@ func (A *Api) SetSymbolRateHandler(w http.ResponseWriter, r *http.Request) {
 	command.SymbolRate = srate
 	err = command.Send(A.Remote)
 	if err != nil {
+		metrics.RequestErrorMetrics.WithLabelValues("set/srate").Inc()
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -57,8 +62,12 @@ func (A *Api) SetSymbolRateHandler(w http.ResponseWriter, r *http.Request) {
 	// send reset
 	go func() {
 		time.Sleep(10 * time.Minute)
+		metrics.RequestMetrics.WithLabelValues("set/srate reset").Inc()
 		command := A.getPresetCommand(receiver)
-		command.Send(A.Remote)
+		err := command.Send(A.Remote)
+		if err != nil {
+			metrics.RequestErrorMetrics.WithLabelValues("set/srate reset").Inc()
+		}
 	}()
 }
 
