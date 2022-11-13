@@ -12,4 +12,4 @@ This can be accessed locally as well as remote. For the code for this, see [app]
 ## Todo
 * enable setting srate
 * logging to web ui
-* configure upper limit for srate per receiver 
+* configure upper limit for srate per receiver in backend

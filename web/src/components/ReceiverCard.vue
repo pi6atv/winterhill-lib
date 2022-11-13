@@ -119,10 +119,6 @@ Vue.filter('formatDate', function(value) {
     computed: {
       call_log () {
         return this.receiver.service_history.filter(item => item!==null ).reverse()
-        // let logs = this.receiver.service_history
-        // if (logs !== null)
-        //   return logs.reverse()
-        // return null
       },
       cols () {
         console.log(this.$vuetify.breakpoint.name)
@@ -137,7 +133,11 @@ Vue.filter('formatDate', function(value) {
         return 1
       },
       symbolRates () {
-        return [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500].map(value => {
+        let rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500]
+        if (this.receiver.frequency <= 1300) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167] // 23cm
+        if (this.receiver.frequency <= 440) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000] // 70cm
+        if (this.receiver.frequency <= 146) rates = [25, 35, 66, 125] // 2m
+        return rates.map(value => {
           return {value: value, text: value===this.config['symbol_rate']?"*"+value:value}
         })
       }
