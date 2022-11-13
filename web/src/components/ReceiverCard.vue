@@ -32,29 +32,29 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
                   <span>{{ item.sub_name }}</span>
                 </span>
               </v-list-item-content>
-              <v-list-item-content class="align-end">
-                <v-row>
-                  <v-col>
-                    <div v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</div>
-                    <div v-else>{{ receiver[item.key] }}</div>
-                  </v-col>
-                  <v-col v-if="item.key === 'symbol_rate'">
-                      <v-select
-                          :items="symbolRates"
-                          v-model="wantedSymbolRate"
-                          outlined
-                          dense
-                      ></v-select>
-                  </v-col>
-                 <v-col v-if="item.key === 'symbol_rate'">
-                      <v-btn
-                          @click="send_symbolrate"
-                          :color="receiver.symbol_rate !== setSymbolRate?'red':'blue'"
-                      >
-                        <span>Set</span>
-                      </v-btn>
-                  </v-col>
-                </v-row>
+              <v-list-item-content>
+                <div class="d-flex">
+                  <div class="me-10 d-flex align-center" v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</div>
+                  <div class="me-10 d-flex align-center" v-else>{{ receiver[item.key] }}</div>
+                  <div class="me-2" v-if="item.key === 'symbol_rate'">
+                    <v-select
+                        :items="symbolRates"
+                        v-model="selectedSR"
+                        outlined
+                        dense
+                        hide-details
+                    />
+                  </div>
+                  <v-spacer/>
+                  <div class="" v-if="item.key === 'symbol_rate'">
+                    <v-btn
+                        @click="send_symbolrate"
+                        :color="setSymbolRate !== null && setSymbolRate !== receiver.symbol_rate?'red':'blue'"
+                    >
+                      <span>Set</span>
+                    </v-btn>
+                  </div>
+                </div>
             </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -154,7 +154,8 @@ Vue.filter('formatDate', function(value) {
         if (this.receiver.carrier_frequency <= 440) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000] // 70cm
         if (this.receiver.carrier_frequency <= 146) rates = [25, 35, 66, 125] // 2m
         return rates.map(value => {
-          return {value: value, text: value===this.receiver['symbol_rate']?"->"+value:value}
+          // return {value: value, text: value===this.receiver['symbol_rate']?"->"+value:value}
+          return {value: value, text: value}
         })
       },
       cards () {
@@ -186,13 +187,13 @@ Vue.filter('formatDate', function(value) {
       }
     },
     data: () => ({
-      wantedSymbolRate: "--",
+      selectedSR: "--",
       setSymbolRate: null,
     }),
     methods: {
       send_symbolrate() {
-        this.setSymbolRate = this.wantedSymbolRate
-        fetch("api/set/srate/"+this.receiver.index+"/"+this.wantedSymbolRate, {method: "POST"})
+        this.setSymbolRate = this.selectedSR
+        fetch("api/set/srate/"+this.receiver.index+"/"+this.selectedSR, {method: "POST"})
             .then((response) => {
               if (response.ok) {
                 this.error = ""
@@ -204,9 +205,12 @@ Vue.filter('formatDate', function(value) {
       },
     },
     async created() {
-      this.setSymbolRate = this.receiver.symbol_rate
-      this.wantedSymbolRate = this.receiver.symbol_rate
+      // this.setSymbolRate = this.receiver.symbol_rate
+      this.selectedSR = this.receiver.symbol_rate
     },
+    async updated() {
+      if (this.setSymbolRate === this.receiver.symbol_rate) this.setSymbolRate = null
+    }
   }
 </script>
 
