@@ -5,6 +5,7 @@ import (
 	"github.com/pi6atv/winterhill-lib/internal/web/metrics"
 	"github.com/pi6atv/winterhill-lib/pkg/commands"
 	"github.com/pi6atv/winterhill-lib/pkg/config"
+	"github.com/pi6atv/winterhill-lib/pkg/log"
 	"github.com/pkg/errors"
 	"net/http"
 	"strconv"
@@ -18,9 +19,10 @@ type Api struct {
 	remoteBasePort int64
 	config         *config.WinterhillConfig
 	resetInterval  time.Duration
+	log            *log.Stream
 }
 
-func New(ip string, basePort int64, resetInterval time.Duration) (*Api, error) {
+func New(ip string, basePort int64, resetInterval time.Duration, logStream *log.Stream) (*Api, error) {
 	iniConfig, err := config.New("")
 	if err != nil {
 		return nil, errors.Wrap(err, "reading winterhill.init")
@@ -31,6 +33,7 @@ func New(ip string, basePort int64, resetInterval time.Duration) (*Api, error) {
 		remoteBasePort: basePort,
 		config:         iniConfig,
 		resetInterval:  resetInterval,
+		log:            logStream,
 	}
 	return &api, nil
 }
@@ -53,6 +56,7 @@ func (A *Api) SetSymbolRateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	A.log.Log(r, receiver, "srate", vars["srate"])
 	command := A.getPresetCommand(receiver)
 	command.SymbolRate = srate
 	err = command.Send(A.remoteHost, A.remoteBasePort)

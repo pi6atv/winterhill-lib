@@ -45,10 +45,9 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
                   <v-col>
                     <v-btn
                         @click="send_symbolrate"
-                        disabled
                     >
                       <v-progress-circular
-                          v-if="config.symbol_rate !== setSymbolRate"
+                          v-if="receiver.symbol_rate !== setSymbolRate"
                           indeterminate
                           color="primary"
                       >
@@ -90,9 +89,32 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
               <div class="text-caption">
                 start: {{ event.time | formatDate }}
               </div>
-<!--              <div class="text-caption" v-if="event.end !== 0">-->
-<!--                end: {{ event.end | formatDate }}-->
-<!--              </div>-->
+            </v-timeline-item>
+          </v-timeline>
+        </v-card>
+      </v-col>
+      <v-col>
+        <v-card
+            style="min-height: 364px"
+        >
+          <v-card-title>Log</v-card-title>
+          <v-card-subtitle>Let op: Na het veranderen van de symbolrate wordt deze automatisch na 10 minuten gereset.</v-card-subtitle>
+          <v-timeline
+              dense
+              class="overflow-y-auto"
+              style="max-height: 300px"
+          >
+            <v-timeline-item
+                v-for="message in logMessages"
+                :key="message.time"
+                color="blue"
+                small
+                fill-dot
+            >
+              <strong>{{ message.time | formatDate }}</strong>
+              <div class="text-caption">
+                {{ message.user }} stelde {{ message.setting }} in op {{ message.value }}
+              </div>
             </v-timeline-item>
           </v-timeline>
         </v-card>
@@ -114,7 +136,7 @@ Vue.filter('formatDate', function(value) {
 
   export default {
     name: 'ReceiverCard',
-    props: ['receiver', 'config'],
+    props: ['receiver', 'config', 'logMessages'],
     components: {SignalChart: SignalChartComponent},
     computed: {
       call_log () {
@@ -134,9 +156,9 @@ Vue.filter('formatDate', function(value) {
       },
       symbolRates () {
         let rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500]
-        if (this.receiver.frequency <= 1300) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167] // 23cm
-        if (this.receiver.frequency <= 440) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000] // 70cm
-        if (this.receiver.frequency <= 146) rates = [25, 35, 66, 125] // 2m
+        if (this.receiver.carrier_frequency <= 1300) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167] // 23cm
+        if (this.receiver.carrier_frequency <= 440) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000] // 70cm
+        if (this.receiver.carrier_frequency <= 146) rates = [25, 35, 66, 125] // 2m
         return rates.map(value => {
           return {value: value, text: value===this.config['symbol_rate']?"*"+value:value}
         })
@@ -184,12 +206,11 @@ Vue.filter('formatDate', function(value) {
                 console.log(response)
               }
             })
-        // console.log("SETTING SYMBOL RATE TO", this.setSymbolRate)
       },
     },
     async created() {
-      this.setSymbolRate = this.config.symbol_rate
-      this.wantedSymbolRate = this.config.symbol_rate
+      this.setSymbolRate = this.receiver.symbol_rate
+      this.wantedSymbolRate = this.receiver.symbol_rate
     },
   }
 </script>

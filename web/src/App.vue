@@ -49,7 +49,7 @@
             :key="index"
             :value="index"
         >
-          <ReceiverCard :receiver="receiver" :config="getConfig(index)"/>
+          <ReceiverCard :receiver="receiver" :config="getConfig(index)" :logMessages="logMessages[receiver.index]"/>
         </v-tab-item>
       </v-tabs-items>
     </v-main>
@@ -83,6 +83,7 @@ export default {
     receivers: [],
     error: "",
     config: {},
+    logMessages: [],
     receiverNames: [
         "2m",
         "70cm 436.00",
@@ -140,11 +141,41 @@ export default {
             this.receivers = data
           })
     },
+    connectLog() {
+      console.log("connecting to websocket")
+      this.logMessages = [] // reset
+      for (let index=1; index<=4; index++) {
+        this.logMessages[index] = []
+      }
+      this.connection = new WebSocket(((location.protocol === "https:") ? "wss://" : "ws://") + location.host + location.pathname + "api/log/ws")
+      this.connection.onmessage = function(event) {
+        const message = JSON.parse(event.data);
+        console.log("LOG:", message)
+        if (message.receiver > 0) this.logMessages[message.receiver].push(message)
+
+        // filter and sort
+        const now = new Date()
+        const history = now.setTime((new Date()).getTime() - 14400 * 1000) // 4 hours of logs
+        for (let index=1; index<=4; index++) {
+          this.logMessages[index] = this.logMessages[index].filter((item) => new Date(item.time) > history)
+          this.logMessages[index] = this.logMessages[index].sort((a, b) => {return new Date(b.time) - new Date(a.time)})
+        }
+      }.bind(this)
+      this.connection.onerror = function (event) {
+        console.log(event)
+        this.connection.close()
+      }.bind(this)
+      this.connection.onclose = function (event) {
+        console.log(event)
+        setTimeout(this.connectLog.bind(this), 1000)
+      }.bind(this)
+    },
   },
   async created() {
     this.updateConfig();
     this.updateData();
     setInterval(this.updateData.bind(this), 5000)
+    this.connectLog()
   },
 };
 </script>
