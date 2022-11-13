@@ -113,7 +113,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
             >
               <strong>{{ message.time | formatDate }}</strong>
               <div class="text-caption">
-                {{ message.user }} stelde {{ message.setting }} in op {{ message.value }}
+                {{ message.user }} stelde {{ message.setting }} in op {{ message.value }}ks
               </div>
             </v-timeline-item>
           </v-timeline>

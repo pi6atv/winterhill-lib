@@ -56,7 +56,7 @@ func (A *Api) SetSymbolRateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	A.log.Log(r, receiver, "srate", vars["srate"])
+	A.log.Log(r, receiver, "SR", vars["srate"])
 	command := A.getPresetCommand(receiver)
 	command.SymbolRate = srate
 	err = command.Send(A.remoteHost, A.remoteBasePort)
