@@ -294,7 +294,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -341,7 +342,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 54
+            "y": 6
           },
           "id": 8,
           "options": {
@@ -429,7 +430,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -444,7 +446,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 54
+            "y": 6
           },
           "id": 16,
           "options": {
@@ -515,12 +517,14 @@
                   "mode": "off"
                 }
               },
+              "decimals": 3,
               "mappings": [],
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -535,7 +539,7 @@
             "h": 6,
             "w": 12,
             "x": 0,
-            "y": 60
+            "y": 12
           },
           "id": 27,
           "options": {
@@ -611,7 +615,8 @@
                 "mode": "absolute",
                 "steps": [
                   {
-                    "color": "green"
+                    "color": "green",
+                    "value": null
                   },
                   {
                     "color": "red",
@@ -626,7 +631,7 @@
             "h": 6,
             "w": 12,
             "x": 12,
-            "y": 60
+            "y": 12
           },
           "id": 29,
           "options": {
@@ -1133,6 +1138,6 @@
   "timezone": "",
   "title": "winterhill",
   "uid": "lAdMcDD4k",
-  "version": 14,
+  "version": 15,
   "weekStart": ""
 }
