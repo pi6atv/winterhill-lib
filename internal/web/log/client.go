@@ -27,16 +27,16 @@ const (
 	writeWait = 10 * time.Second
 )
 
-type client struct {
+type Client struct {
 	id   int
 	conn *websocket.Conn
 	in   chan log.Message
 	hub  *hub
 }
 
-func NewClient(conn *websocket.Conn, hub *hub) *client {
+func NewClient(conn *websocket.Conn, hub *hub) *Client {
 	NextID++
-	return &client{
+	return &Client{
 		id:   NextID,
 		conn: conn,
 		in:   make(chan log.Message, 1000),
@@ -44,7 +44,7 @@ func NewClient(conn *websocket.Conn, hub *hub) *client {
 	}
 }
 
-func (c *client) handle() {
+func (c *Client) handle() {
 	// send history
 	for _, message := range c.hub.History {
 		_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))

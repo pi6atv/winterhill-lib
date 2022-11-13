@@ -11,4 +11,3 @@ This can be accessed locally as well as remote. For the code for this, see [app]
 
 ## Todo
 * configure upper limit for srate per receiver in backend
-* delay reset with every set

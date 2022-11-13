@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
-	"github.com/sirupsen/logrus"
-	"net/http"
 	"time"
 )
 
@@ -54,15 +52,9 @@ func New() *Stream {
 	return &stream
 }
 
-func (S *Stream) Log(r *http.Request, receiver int64, setting, value string) {
+func (S *Stream) Log(user string, receiver int64, setting, value string) {
 	if S == nil {
 		return // used during tests
-	}
-
-	user, ok := r.Context().Value("user").(string)
-	if !ok {
-		logrus.Warn("failed to get user from request context")
-		user = "???"
 	}
 
 	msg := Message{

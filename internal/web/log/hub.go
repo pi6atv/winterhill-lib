@@ -33,18 +33,18 @@ var (
 type hub struct {
 	logStream  *log.Stream
 	History    []log.Message
-	clients    map[int]*client
-	register   chan *client
-	deregister chan *client
+	clients    map[int]*Client
+	register   chan *Client
+	deregister chan *Client
 }
 
 // NewHub creates a new hub with initialised channels
 func NewHub(log *log.Stream) *hub {
 	return &hub{
 		logStream:  log,
-		clients:    make(map[int]*client),
-		register:   make(chan *client),
-		deregister: make(chan *client),
+		clients:    make(map[int]*Client),
+		register:   make(chan *Client),
+		deregister: make(chan *Client),
 	}
 }
 
