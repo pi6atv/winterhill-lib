@@ -66,6 +66,7 @@ func (A *Api) SetSymbolRateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// FIXME: delay this with every 'set'
 	// send reset
 	go func() {
 		time.Sleep(A.resetInterval)
