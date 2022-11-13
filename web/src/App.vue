@@ -35,11 +35,6 @@
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-banner
-          class="red"
-      >
-        <div style="text-align: center;"><b>Deze pagina is nog in ontwerp!</b></div>
-      </v-banner>
       <v-tabs-items v-model="tab">
         <v-tab-item value="info">
           <Guide/>
