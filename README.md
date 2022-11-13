@@ -12,3 +12,7 @@ This can be accessed locally as well as remote. For the code for this, see [app]
 ## Todo
 * configure upper limit for srate per receiver in backend
 * delay reset with every set
+* fix layout for srate:
+  * `<value> <select> <button>`; make select wider
+  * only make button red if we did ask to set something, and it's not yet done. 
+    Now it's also red when the receiver auto-shifts it a bit

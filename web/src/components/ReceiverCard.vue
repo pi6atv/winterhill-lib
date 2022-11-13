@@ -28,39 +28,33 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
             >
               <v-list-item-content>
                 <span>
-                  <b>{{ item.name }}:</b>
+                  <b>{{ item.name }}:</b><br/>
+                  <span>{{ item.sub_name }}</span>
                 </span>
               </v-list-item-content>
               <v-list-item-content class="align-end">
-              <span v-if="item.key === 'symbol_rate'">
                 <v-row>
                   <v-col>
-                    <v-select
-                        :items="symbolRates"
-                        v-model="wantedSymbolRate"
-                        outlined
-                        dense
-                    ></v-select>
+                    <div v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</div>
+                    <div v-else>{{ receiver[item.key] }}</div>
                   </v-col>
-                  <v-col>
-                    <v-btn
-                        @click="send_symbolrate"
-                    >
-                      <v-progress-circular
-                          v-if="receiver.symbol_rate !== setSymbolRate"
-                          indeterminate
-                          color="primary"
+                  <v-col v-if="item.key === 'symbol_rate'">
+                      <v-select
+                          :items="symbolRates"
+                          v-model="wantedSymbolRate"
+                          outlined
+                          dense
+                      ></v-select>
+                  </v-col>
+                 <v-col v-if="item.key === 'symbol_rate'">
+                      <v-btn
+                          @click="send_symbolrate"
+                          :color="receiver.symbol_rate !== setSymbolRate?'red':'blue'"
                       >
-                      </v-progress-circular>
-                      <span v-else>Set</span>
-                    </v-btn>
+                        <span>Set</span>
+                      </v-btn>
                   </v-col>
                 </v-row>
-              </span>
-              <span v-else>
-                  <span v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</span>
-                  <span v-else>{{ receiver[item.key] }}</span>
-                </span>
             </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -171,7 +165,7 @@ Vue.filter('formatDate', function(value) {
               {name: "MER", key: "mer"},
               {name: "D-nummer", key: "d_number"},
               {name: "Modulatie", key: "modulation_code"},
-              {name: "Symbol rate (default = " + this.config.symbol_rate + ")", key: "symbol_rate"},
+              {name: "Symbol rate", sub_name: "(default = " + this.config.symbol_rate + ")", key: "symbol_rate"},
               {name: "Antenne input", key: "antenna"},
             ], flex: 3 },
           { title: 'Transport Stream', items: [
@@ -250,5 +244,4 @@ Vue.filter('formatDate', function(value) {
     flex: 0 1 calc(33% - 1em);
   }
 }
-
 </style>
