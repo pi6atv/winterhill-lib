@@ -17,9 +17,10 @@ type Api struct {
 	remoteHost     string
 	remoteBasePort int64
 	config         *config.WinterhillConfig
+	resetInterval  time.Duration
 }
 
-func New(ip string, basePort int64) (*Api, error) {
+func New(ip string, basePort int64, resetInterval time.Duration) (*Api, error) {
 	iniConfig, err := config.New("")
 	if err != nil {
 		return nil, errors.Wrap(err, "reading winterhill.init")
@@ -29,6 +30,7 @@ func New(ip string, basePort int64) (*Api, error) {
 		remoteHost:     ip,
 		remoteBasePort: basePort,
 		config:         iniConfig,
+		resetInterval:  resetInterval,
 	}
 	return &api, nil
 }
@@ -62,7 +64,7 @@ func (A *Api) SetSymbolRateHandler(w http.ResponseWriter, r *http.Request) {
 
 	// send reset
 	go func() {
-		time.Sleep(10 * time.Minute)
+		time.Sleep(A.resetInterval)
 		metrics.RequestMetrics.WithLabelValues("set/srate reset").Inc()
 		command := A.getPresetCommand(receiver)
 		err := command.Send(A.remoteHost, A.remoteBasePort)

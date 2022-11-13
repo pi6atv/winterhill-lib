@@ -9,6 +9,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"io/fs"
 	"net/http"
+	"time"
 )
 
 var (
@@ -24,7 +25,7 @@ func main() {
 		panic(err)
 	}
 
-	commandApi, err := commandapi.New("127.0.0.1", 9920)
+	commandApi, err := commandapi.New("127.0.0.1", 9920, 10*time.Minute)
 	if err != nil {
 		panic(err)
 	}
