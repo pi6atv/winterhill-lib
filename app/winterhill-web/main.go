@@ -30,7 +30,7 @@ func main() {
 		panic(err)
 	}
 
-	commandApi, err := commandapi.New("127.0.0.1", 9920, 10*time.Minute, logStream)
+	commandApi, err := commandapi.New("127.0.0.1", 9920, 30*time.Minute, logStream)
 	if err != nil {
 		panic(err)
 	}

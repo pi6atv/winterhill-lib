@@ -98,7 +98,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
             style="min-height: 364px"
         >
           <v-card-title>Log</v-card-title>
-          <v-card-subtitle>Let op: Na het veranderen van de symbolrate wordt deze automatisch na 10 minuten gereset.</v-card-subtitle>
+          <v-card-subtitle>Let op: Na het veranderen van een symbolrate wordt deze automatisch na 30 minuten gereset.</v-card-subtitle>
           <v-timeline
               dense
               class="overflow-y-auto"
@@ -160,37 +160,38 @@ Vue.filter('formatDate', function(value) {
         if (this.receiver.carrier_frequency <= 440) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000] // 70cm
         if (this.receiver.carrier_frequency <= 146) rates = [25, 35, 66, 125] // 2m
         return rates.map(value => {
-          return {value: value, text: value===this.config['symbol_rate']?"*"+value:value}
+          return {value: value, text: value===this.receiver['symbol_rate']?"->"+value:value}
         })
+      },
+      cards () {
+        return [
+          { title: 'RF', items: [
+              {name: "Status", key: "state"},
+              {name: "Frequentie", key: "carrier_frequency"},
+              {name: "MER", key: "mer"},
+              {name: "D-nummer", key: "d_number"},
+              {name: "Modulatie", key: "modulation_code"},
+              {name: "Symbol rate (default = " + this.config.symbol_rate + ")", key: "symbol_rate"},
+              {name: "Antenne input", key: "antenna"},
+            ], flex: 3 },
+          { title: 'Transport Stream', items: [
+              {name: "null percentage", key: "ts_null_percentage"},
+              {name: "Service", key: "service_name"},
+              {name: "Provider", key: "service_provider_name"},
+              {name: "Frame type", key: "frame_type"},
+              {name: "Pilots", key: "pilots"},
+              {name: "Roll off", key: "roll_off"},
+            ], flex: 3 },
+          { title: 'Video', items: [
+              {name: "Coding type", key: "video_type"},
+            ], flex: 3 },
+          { title: 'Audio', items: [
+              {name: "Coding type", key: "audio_type"},
+            ], flex: 3 },
+        ]
       }
     },
     data: () => ({
-      cards:
-          [
-            { title: 'RF', items: [
-                {name: "Status", key: "state"},
-                {name: "Frequentie", key: "carrier_frequency"},
-                {name: "MER", key: "mer"},
-                {name: "D-nummer", key: "d_number"},
-                {name: "Modulatie", key: "modulation_code"},
-                {name: "Symbol rate", key: "symbol_rate"},
-                {name: "Antenne input", key: "antenna"},
-              ], flex: 3 },
-            { title: 'Transport Stream', items: [
-                {name: "null percentage", key: "ts_null_percentage"},
-                {name: "Service", key: "service_name"},
-                {name: "Provider", key: "service_provider_name"},
-                {name: "Frame type", key: "frame_type"},
-                {name: "Pilots", key: "pilots"},
-                {name: "Roll off", key: "roll_off"},
-              ], flex: 3 },
-            { title: 'Video', items: [
-                {name: "Coding type", key: "video_type"},
-              ], flex: 3 },
-            { title: 'Audio', items: [
-                {name: "Coding type", key: "audio_type"},
-              ], flex: 3 },
-          ],
       wantedSymbolRate: "--",
       setSymbolRate: null,
     }),
