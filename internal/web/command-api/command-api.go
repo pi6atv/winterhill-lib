@@ -96,7 +96,7 @@ func (A *Api) SetSymbolRateHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			metrics.RequestErrorMetrics.WithLabelValues("set/srate reset").Inc()
 		}
-		A.log.Log("reset", receiver, "SR", fmt.Sprintf("%d", command.SymbolRate))
+		A.log.Log("Winterhill", receiver, "SR", fmt.Sprintf("%d", command.SymbolRate))
 	})
 }
 
