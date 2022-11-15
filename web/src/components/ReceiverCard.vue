@@ -167,7 +167,7 @@ Vue.filter('formatDate', function(value) {
               {name: "D-nummer", key: "d_number"},
               {name: "Modulatie", key: "modulation_code"},
               {name: "Symbol rate", sub_name: "(default = " + this.config.symbol_rate + ")", key: "symbol_rate"},
-              {name: "Antenne input", key: "antenna"},
+              // {name: "Antenne input", key: "antenna"},
             ], flex: 3 },
           { title: 'Transport Stream', items: [
               {name: "null percentage", key: "ts_null_percentage"},
