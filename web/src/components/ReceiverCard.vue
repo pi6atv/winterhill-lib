@@ -35,7 +35,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
               <v-list-item-content>
                 <div class="d-flex">
                   <div class="me-10 d-flex align-center" v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</div>
-                  <div class="me-10 d-flex align-center" v-else>{{ receiver[item.key] }}</div>
+                  <div class="me-10 d-flex align-center" v-else>{{ receiver[item.key] }}{{ item.key === 'carrier_frequency'?' MHz':''}}</div>
                   <div class="me-2" v-if="item.key === 'symbol_rate'">
                     <v-select
                         :items="symbolRates"
@@ -44,10 +44,8 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
                         dense
                         hide-details
                     />
-                  </div>
-                  <v-spacer/>
-                  <div class="" v-if="item.key === 'symbol_rate'">
                     <v-btn
+                        class="mt-1"
                         @click="send_symbolrate"
                         :color="setSymbolRate !== null && setSymbolRate !== receiver.symbol_rate?'red':'blue'"
                     >
