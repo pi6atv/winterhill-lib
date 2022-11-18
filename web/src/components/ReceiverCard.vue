@@ -147,10 +147,11 @@ Vue.filter('formatDate', function(value) {
         return 1
       },
       symbolRates () {
-        let rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500]
-        if (this.receiver.carrier_frequency <= 1300) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167] // 23cm
-        if (this.receiver.carrier_frequency <= 440) rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000] // 70cm
-        if (this.receiver.carrier_frequency <= 146) rates = [25, 35, 66, 125] // 2m
+        // let rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500]
+        let rates = [66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500]
+        if (this.receiver.carrier_frequency <= 1300) rates = [66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167] // 23cm
+        if (this.receiver.carrier_frequency <= 440) rates = [66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000] // 70cm
+        if (this.receiver.carrier_frequency <= 146) rates = [66, 125] // 2m
         return rates.map(value => {
           // return {value: value, text: value===this.receiver['symbol_rate']?"->"+value:value}
           return {value: value, text: value}
