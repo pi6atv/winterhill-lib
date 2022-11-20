@@ -41,6 +41,7 @@ func main() {
 	logApi := log_api.New(logStream)
 	router.Path("/winterhill/api/log/ws").HandlerFunc(logApi.WsHandler)
 	router.Path("/winterhill/api/status").HandlerFunc(statusApi.StatusHandler)
+	router.Path("/winterhill/api/summary").HandlerFunc(statusApi.SummaryHandler)
 	router.Path("/winterhill/api/config").HandlerFunc(statusApi.ConfigHandler)
 	router.Path("/winterhill/api/set/srate/{receiver:[1-4]}/{srate:[0-9]+}").HandlerFunc(commandApi.SetSymbolRateHandler).Methods("POST")
 	router.PathPrefix("/winterhill/").Handler(http.StripPrefix("/winterhill/", http.FileServer(http.FS(subdir))))

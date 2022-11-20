@@ -15,7 +15,7 @@
       >
         <v-tab href="#info">
           Info
-          <v-icon>md-info</v-icon>
+          <v-icon>mdi-information</v-icon>
         </v-tab>
         <v-tab
             v-for="(receiver, index) in receivers"
@@ -24,6 +24,10 @@
         >
           {{ receiverNames[index] }}
           <v-icon>{{receiverIcon(receiver.state)}}</v-icon>
+        </v-tab>
+        <v-tab href="#summary">
+          Raw
+          <v-icon>mdi-text-long</v-icon>
         </v-tab>
       </v-tabs>
       <v-btn
@@ -46,6 +50,9 @@
         >
           <ReceiverCard :receiver="receiver" :config="getConfig(index)" :logMessages="logMessages[receiver.index]"/>
         </v-tab-item>
+        <v-tab-item value="summary">
+          <Summary/>
+        </v-tab-item>
       </v-tabs-items>
     </v-main>
   </v-app>
@@ -54,6 +61,7 @@
 <script>
 import ReceiverCard from './components/ReceiverCard';
 import GuideComponent from "@/components/GuideComponent";
+import SummaryComponent from "@/components/SummaryComponent";
 
 export default {
   name: 'App',
@@ -61,6 +69,7 @@ export default {
   components: {
     ReceiverCard: ReceiverCard,
     Guide: GuideComponent,
+    Summary: SummaryComponent,
   },
 
   computed: {

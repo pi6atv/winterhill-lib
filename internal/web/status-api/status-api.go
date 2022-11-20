@@ -6,13 +6,15 @@ import (
 	"github.com/pi6atv/winterhill-lib/internal/web/metrics"
 	"github.com/pi6atv/winterhill-lib/pkg/config"
 	"github.com/pi6atv/winterhill-lib/pkg/events"
+	"github.com/pi6atv/winterhill-lib/pkg/summary"
 	"github.com/pkg/errors"
 	"net/http"
 )
 
 type Api struct {
-	listener *events.Listener
-	config   *config.WinterhillConfig
+	eventListener   *events.Listener
+	summaryListener *summary.Listener
+	config          *config.WinterhillConfig
 }
 
 func New(ip string, port int) (*Api, error) {
@@ -21,10 +23,12 @@ func New(ip string, port int) (*Api, error) {
 		return nil, errors.Wrap(err, "reading winterhill.init")
 	}
 	api := Api{
-		listener: events.New(4, 60),
-		config:   iniConfig,
+		eventListener:   events.New(4, 60),
+		summaryListener: summary.New(),
+		config:          iniConfig,
 	}
-	go api.listener.Run(fmt.Sprintf("%s:%d", ip, port), nil)
+	go api.eventListener.Run(fmt.Sprintf("%s:%d", ip, port), nil)
+	go api.summaryListener.Run(fmt.Sprintf("%s:%d", ip, 9904), nil)
 	return &api, nil
 }
 
@@ -33,7 +37,15 @@ func (A *Api) StatusHandler(w http.ResponseWriter, r *http.Request) {
 	metrics.RequestMetrics.WithLabelValues("status").Inc()
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(A.listener.Receivers)
+	_ = json.NewEncoder(w).Encode(A.eventListener.Receivers)
+}
+
+// SummaryHandler returns the Summary
+func (A *Api) SummaryHandler(w http.ResponseWriter, r *http.Request) {
+	metrics.RequestMetrics.WithLabelValues("status").Inc()
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(A.summaryListener.LastEvent)
 }
 
 func (A *Api) ConfigHandler(w http.ResponseWriter, r *http.Request) {
