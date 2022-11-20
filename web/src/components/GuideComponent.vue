@@ -14,7 +14,7 @@
 
       <v-row>
         <v-col>
-          <v-img src="receiver.jpg"></v-img>
+          <v-img width="600px" src="receiver.jpg"></v-img>
         </v-col>
       </v-row>
 <!--      <v-row>-->
