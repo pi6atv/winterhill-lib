@@ -13,7 +13,7 @@
 export default {
   data() {
     return {
-      summary:"",
+      summary:"waiting for data...",
     }
   },
   methods: {

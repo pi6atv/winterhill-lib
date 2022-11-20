@@ -35,7 +35,12 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
               <v-list-item-content>
                 <div class="d-flex">
                   <div class="me-10 d-flex align-center" v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</div>
-                  <div class="me-10 d-flex align-center" v-else>{{ receiver[item.key] }}{{ item.key === 'carrier_frequency'?' MHz':''}}</div>
+                  <div class="me-10 d-flex align-center" v-else-if="item.key === 'carrier_frequency'">{{ receiver[item.key] }} MHz</div>
+                  <div class="me-10 d-flex align-center" v-else-if="item.key === 'set_frequency'">{{ receiver[item.key] }} MHz</div>
+                  <div class="me-10 d-flex align-center" v-else-if="receiver.index>=3 && key === 'video_type' && receiver[item.key] !== 'H264'">
+                    <span class="text-decoration-line-through red--text me-2">{{ receiver[item.key] }}</span>(ondersteunt alleen H264)
+                  </div>
+                  <div class="me-10 d-flex align-center" v-else>{{ receiver[item.key] }}</div>
                   <div class="me-2" v-if="item.key === 'symbol_rate'">
                     <v-select
                         :items="symbolRates"
@@ -161,7 +166,8 @@ Vue.filter('formatDate', function(value) {
         return [
           { title: 'RF', items: [
               {name: "Status", key: "state"},
-              {name: "Frequentie", key: "carrier_frequency"},
+              {name: "Frequentie", key: "set_frequency"},
+              {name: "Ontvangen frequentie", key: "carrier_frequency"},
               {name: "MER", key: "mer"},
               {name: "D-nummer", key: "d_number"},
               {name: "Modulatie", key: "modulation_code"},

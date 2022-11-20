@@ -105,8 +105,8 @@ export default {
     },
 
     receiverIcon: function (status) {
-      if (status === "lost") { return "mdi-wifi-strength-3-alert" }
-      if (status === "header") return "mdi-wifi"
+      if (status === "lost") { return "mdi-wifi-off" }
+      if (status === "header") return "mdi-wifi-star"
       if (["DVB-S2", "DVB-S"].indexOf(status) !== -1) {
         return "mdi-wifi-check"
       }
@@ -140,7 +140,7 @@ export default {
           })
           .then(data => {
             for (let index=0; index<4; index++) {
-              data[index].carrier_frequency = [144.6,436,437,1245][index]
+              data[index].set_frequency = [144.6,436,437,1245][index]
             }
             this.receivers = data
           })
