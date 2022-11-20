@@ -1,6 +1,7 @@
 package summary
 
 import (
+	"fmt"
 	"github.com/libp2p/go-reuseport"
 	"github.com/pkg/errors"
 	"strings"
@@ -39,7 +40,7 @@ func (L *Listener) Run(addr string, stop chan bool) error {
 				//fmt.Println("skipping winterhill global config")
 				continue
 			}
-			L.LastEvent = string(buf[0:size])
+			L.LastEvent = string(buf[0:size]) + fmt.Sprintf("\nupdated: %s", time.Now().String())
 		}
 	}
 }
