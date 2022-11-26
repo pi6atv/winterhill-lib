@@ -37,7 +37,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
                   <div class="me-10 d-flex align-center" v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</div>
                   <div class="me-10 d-flex align-center" v-else-if="item.key === 'carrier_frequency'">{{ receiver[item.key] }} MHz</div>
                   <div class="me-10 d-flex align-center" v-else-if="item.key === 'set_frequency'">{{ receiver[item.key] }} MHz</div>
-                  <div class="me-10 d-flex align-center" v-else-if="receiver.index>=3 && key === 'video_type' && receiver[item.key] !== 'H264'">
+                  <div class="me-10 d-flex align-center" v-else-if="receiver.index>=3 && item.key === 'video_type' && receiver[item.key] !== 'H264'">
                     <span class="text-decoration-line-through red--text me-2">{{ receiver[item.key] }}</span>(ondersteunt alleen H264)
                   </div>
                   <div class="me-10 d-flex align-center" v-else>{{ receiver[item.key] }}</div>
