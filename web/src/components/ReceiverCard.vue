@@ -91,30 +91,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
         </v-card>
       </v-col>
       <v-col>
-        <v-card
-            style="min-height: 364px"
-        >
-          <v-card-title>Log</v-card-title>
-          <v-card-subtitle>Let op: Na het veranderen van een symbolrate wordt deze automatisch na 30 minuten gereset.</v-card-subtitle>
-          <v-timeline
-              dense
-              class="overflow-y-auto"
-              style="max-height: 300px"
-          >
-            <v-timeline-item
-                v-for="message in logMessages"
-                :key="message.time"
-                color="blue"
-                small
-                fill-dot
-            >
-              <strong>{{ message.time | formatDate }}</strong>
-              <div class="text-caption">
-                {{ message.user }} stelde {{ message.setting }} in op {{ message.value }}ks
-              </div>
-            </v-timeline-item>
-          </v-timeline>
-        </v-card>
+        <LogComponent :receiver="receiver.index"/>
       </v-col>
     </v-row>
   </v-container>
@@ -124,6 +101,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
 import SignalChartComponent from "@/components/SignalChartComponent";
 import moment from 'moment';
 import Vue from "vue";
+import LogComponent from "@/components/LogComponent";
 
 Vue.filter('formatDate', function(value) {
   if (value) {
@@ -134,7 +112,7 @@ Vue.filter('formatDate', function(value) {
   export default {
     name: 'ReceiverCard',
     props: ['receiver', 'config', 'logMessages'],
-    components: {SignalChart: SignalChartComponent},
+    components: {LogComponent, SignalChart: SignalChartComponent},
     computed: {
       call_log () {
         return this.receiver.service_history.filter(item => item!==null ).reverse()
