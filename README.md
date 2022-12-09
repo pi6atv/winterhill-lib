@@ -8,11 +8,8 @@ The library offers (de)serialisation of the various command and status events.
 A sample application is provided which lets you control the board using a webpage.
 This can be accessed locally as well as remote. For the code for this, see [app](app/) and [web](web/).
 
-
-## Todo
-* build pipeline
-
 ## Building
+### Build for armhf
 ```bash
-GOARCH=arm GOARM=7 GOOS=linux go build -o webcontrol  app/winterhill-web/main.go
+./build-with-docker.sh
 ```
