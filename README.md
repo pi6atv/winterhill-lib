@@ -10,4 +10,9 @@ This can be accessed locally as well as remote. For the code for this, see [app]
 
 
 ## Todo
-* configure upper limit for srate per receiver in backend
+* build pipeline
+
+## Building
+```bash
+GOARCH=arm GOARM=7 GOOS=linux go build -o webcontrol  app/winterhill-web/main.go
+```
