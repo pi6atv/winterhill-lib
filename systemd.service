@@ -1,7 +1,8 @@
 [Unit]
 Description=pi6atv winterhill-web
-StartLimitIntervalSec=1
-StartLimitBurst=1
+RestartSec=1
+StartLimitBurst=5
+StartLimitIntervalSec=3
 StartLimitAction=none
 
 [Service]
