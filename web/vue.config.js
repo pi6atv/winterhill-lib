@@ -8,7 +8,10 @@ module.exports = {
       "^/winterhill/api/": {
         target: "https://webcontrol.pi6atv.ampr.org",
         // target: "http://localhost:8080",
-        // pathRewrite: { '^/drx': '/receivers' },
+        changeOrigin: true,
+      },
+      "^/winterhill/ws/": {
+        target: "https://webcontrol.pi6atv.ampr.org",
         changeOrigin: true,
       },
     },

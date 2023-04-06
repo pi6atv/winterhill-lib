@@ -5,7 +5,7 @@ ARCH ?= amd64
 PACKAGE := winterhill-web
 
 .PHONY: all
-all: $(PACKAGE)
+all: clean package
 
 test:
 	go vet ./...
@@ -21,3 +21,20 @@ app/winterhill-web/dist:
 clean:
 	rm -rf app/winterhill-web/dist $(PACKAGE) build
 
+.PHONY: package
+package: $(PACKAGE) app/winterhill-web/dist
+	mkdir -p build build/opt/pi6atv-$(PACKAGE)/
+	cp $(PACKAGE) build/opt/pi6atv-$(PACKAGE)
+#	cp nginx-site.conf build/etc/nginx/sites-enabled/$(PACKAGE).conf
+#	cp nginx-proxy.conf build/etc/nginx/snippets/$(PACKAGE)-proxy.conf
+	cp systemd.service build/$(PACKAGE).service
+#	cp config/$(PACKAGE).yaml build/opt/pi6atv-$(PACKAGE)/$(PACKAGE).yaml
+#	cp -a web/dist  build/opt/pi6atv-$(PACKAGE)/web/apip
+#	cp grafana-dashboard.json build/var/lib/grafana/dashboards/$(PACKAGE)-dashboard.json
+#	cp prometheus.yaml build/etc/prometheus/targets/$(PACKAGE).yaml
+	cd build && \
+		fpm -s dir -t deb -n pi6atv-$(PACKAGE) -v "$(VERSION)" \
+			--deb-systemd $(PACKAGE).service \
+			--deb-systemd-enable --deb-systemd-auto-start --deb-systemd-restart-after-upgrade \
+			-a $(ARCH) -m "Wim Fournier <debian@fournier.nl>" \
+			.

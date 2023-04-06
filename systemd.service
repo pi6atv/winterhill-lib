@@ -1,0 +1,14 @@
+[Unit]
+Description=pi6atv winterhill-web
+RestartSec=1
+StartLimitBurst=5
+StartLimitIntervalSec=3
+StartLimitAction=none
+
+[Service]
+ExecStart=/opt/pi6atv-winterhill-web/winterhill-web # -verbose -trace
+WorkingDirectory=/opt/pi6atv-winterhill-web
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

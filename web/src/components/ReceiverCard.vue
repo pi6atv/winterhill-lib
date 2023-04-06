@@ -28,40 +28,36 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
             >
               <v-list-item-content>
                 <span>
-                  <b>{{ item.name }}:</b>
+                  <b>{{ item.name }}:</b><br/>
+                  <span>{{ item.sub_name }}</span>
                 </span>
               </v-list-item-content>
-              <v-list-item-content class="align-end">
-              <span v-if="item.key === 'symbol_rate'">
-                <v-row>
-                  <v-col>
+              <v-list-item-content>
+                <div class="d-flex">
+                  <div class="me-10 d-flex align-center" v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</div>
+                  <div class="me-10 d-flex align-center" v-else-if="item.key === 'carrier_frequency'">{{ receiver[item.key] }} MHz</div>
+                  <div class="me-10 d-flex align-center" v-else-if="item.key === 'set_frequency'">{{ receiver[item.key] }} MHz</div>
+                  <div class="me-10 d-flex align-center" v-else-if="receiver.index>=3 && item.key === 'video_type' && receiver[item.key] !== 'H264'">
+                    <span class="text-decoration-line-through red--text me-2">{{ receiver[item.key] }}</span>(ondersteunt alleen H264)
+                  </div>
+                  <div class="me-10 d-flex align-center" v-else>{{ receiver[item.key] }}</div>
+                  <div class="me-2" v-if="item.key === 'symbol_rate'">
                     <v-select
                         :items="symbolRates"
-                        v-model="wantedSymbolRate"
+                        v-model="selectedSR"
                         outlined
                         dense
-                    ></v-select>
-                  </v-col>
-                  <v-col>
+                        hide-details
+                    />
                     <v-btn
+                        class="mt-1"
                         @click="send_symbolrate"
-                        disabled
+                        :color="setSymbolRate !== null && setSymbolRate !== receiver.symbol_rate?'red':'blue'"
                     >
-                      <v-progress-circular
-                          v-if="config.symbol_rate !== setSymbolRate"
-                          indeterminate
-                          color="primary"
-                      >
-                      </v-progress-circular>
-                      <span v-else>Set</span>
+                      <span>Set</span>
                     </v-btn>
-                  </v-col>
-                </v-row>
-              </span>
-              <span v-else>
-                  <span v-if="item.key==='antenna'">{{config.antenna}} - {{ {"BOT": "Bottom", "TOP": "Top"}[receiver[item.key]] }}</span>
-                  <span v-else>{{ receiver[item.key] }}</span>
-                </span>
+                  </div>
+                </div>
             </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -90,12 +86,12 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
               <div class="text-caption">
                 start: {{ event.time | formatDate }}
               </div>
-<!--              <div class="text-caption" v-if="event.end !== 0">-->
-<!--                end: {{ event.end | formatDate }}-->
-<!--              </div>-->
             </v-timeline-item>
           </v-timeline>
         </v-card>
+      </v-col>
+      <v-col>
+        <LogComponent :receiver="receiver.index"/>
       </v-col>
     </v-row>
   </v-container>
@@ -105,6 +101,7 @@ labels: state, symbol rate, service/provider, modulation, audio type, video type
 import SignalChartComponent from "@/components/SignalChartComponent";
 import moment from 'moment';
 import Vue from "vue";
+import LogComponent from "@/components/LogComponent";
 
 Vue.filter('formatDate', function(value) {
   if (value) {
@@ -114,15 +111,11 @@ Vue.filter('formatDate', function(value) {
 
   export default {
     name: 'ReceiverCard',
-    props: ['receiver', 'config'],
-    components: {SignalChart: SignalChartComponent},
+    props: ['receiver', 'config', 'logMessages'],
+    components: {LogComponent, SignalChart: SignalChartComponent},
     computed: {
       call_log () {
         return this.receiver.service_history.filter(item => item!==null ).reverse()
-        // let logs = this.receiver.service_history
-        // if (logs !== null)
-        //   return logs.reverse()
-        // return null
       },
       cols () {
         console.log(this.$vuetify.breakpoint.name)
@@ -137,51 +130,70 @@ Vue.filter('formatDate', function(value) {
         return 1
       },
       symbolRates () {
-        return [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500].map(value => {
-          return {value: value, text: value===this.config['symbol_rate']?"*"+value:value}
+        // let rates = [25, 35, 66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500]
+        let rates = [66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167, 22000, 27500]
+        if (this.receiver.carrier_frequency <= 1300) rates = [66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000, 3000, 4000, 4167] // 23cm
+        if (this.receiver.carrier_frequency <= 440) rates = [66, 125, 250, 333, 360, 500, 1000, 1200, 1500, 2000] // 70cm
+        if (this.receiver.carrier_frequency <= 146) rates = [66, 125] // 2m
+        return rates.map(value => {
+          // return {value: value, text: value===this.receiver['symbol_rate']?"->"+value:value}
+          return {value: value, text: value}
         })
+      },
+      cards () {
+        return [
+          { title: 'RF', items: [
+              {name: "Status", key: "state"},
+              {name: "Frequentie", key: "set_frequency"},
+              {name: "Ontvangen frequentie", key: "carrier_frequency"},
+              {name: "MER", key: "mer"},
+              {name: "D-nummer", key: "d_number"},
+              {name: "Modulatie", key: "modulation_code"},
+              {name: "Symbol rate", sub_name: "(default = " + this.config.symbol_rate + ")", key: "symbol_rate"},
+              // {name: "Antenne input", key: "antenna"},
+            ], flex: 3 },
+          { title: 'Transport Stream', items: [
+              {name: "null percentage", key: "ts_null_percentage"},
+              {name: "Service", key: "service_name"},
+              {name: "Provider", key: "service_provider_name"},
+              {name: "Frame type", key: "frame_type"},
+              {name: "Pilots", key: "pilots"},
+              {name: "Roll off", key: "roll_off"},
+            ], flex: 3 },
+          { title: 'Video', items: [
+              {name: "Coding type", key: "video_type"},
+            ], flex: 3 },
+          { title: 'Audio', items: [
+              {name: "Coding type", key: "audio_type"},
+            ], flex: 3 },
+        ]
       }
     },
     data: () => ({
-      cards:
-          [
-            { title: 'RF', items: [
-                {name: "Status", key: "state"},
-                {name: "Frequentie", key: "carrier_frequency"},
-                {name: "MER", key: "mer"},
-                {name: "D-nummer", key: "d_number"},
-                {name: "Modulatie", key: "modulation_code"},
-                {name: "Symbol rate", key: "symbol_rate"},
-                {name: "Antenne input", key: "antenna"},
-              ], flex: 3 },
-            { title: 'Transport Stream', items: [
-                {name: "null percentage", key: "ts_null_percentage"},
-                {name: "Service", key: "service_name"},
-                {name: "Provider", key: "service_provider_name"},
-                {name: "Frame type", key: "frame_type"},
-                {name: "Pilots", key: "pilots"},
-                {name: "Roll off", key: "roll_off"},
-              ], flex: 3 },
-            { title: 'Video', items: [
-                {name: "Coding type", key: "video_type"},
-              ], flex: 3 },
-            { title: 'Audio', items: [
-                {name: "Coding type", key: "audio_type"},
-              ], flex: 3 },
-          ],
-      wantedSymbolRate: "--",
+      selectedSR: "--",
       setSymbolRate: null,
     }),
     methods: {
       send_symbolrate() {
-        this.setSymbolRate = this.wantedSymbolRate
-        console.log("SETTING SYMBOL RATE TO", this.setSymbolRate)
+        this.setSymbolRate = this.selectedSR
+        fetch("api/set/srate/"+this.receiver.index+"/"+this.selectedSR, {method: "POST"})
+            .then((response) => {
+              if (response.ok) {
+                this.error = ""
+              } else {
+                this.error = "failed to set symbol rate"
+                console.log(response)
+              }
+            })
       },
     },
     async created() {
-      this.setSymbolRate = this.config.symbol_rate
-      this.wantedSymbolRate = this.config.symbol_rate
+      // this.setSymbolRate = this.receiver.symbol_rate
+      this.selectedSR = this.receiver.symbol_rate
     },
+    async updated() {
+      if (this.setSymbolRate === this.receiver.symbol_rate) this.setSymbolRate = null
+    }
   }
 </script>
 
@@ -219,5 +231,4 @@ Vue.filter('formatDate', function(value) {
     flex: 0 1 calc(33% - 1em);
   }
 }
-
 </style>

@@ -15,7 +15,7 @@
       >
         <v-tab href="#info">
           Info
-          <v-icon>md-info</v-icon>
+          <v-icon>mdi-information</v-icon>
         </v-tab>
         <v-tab
             v-for="(receiver, index) in receivers"
@@ -24,6 +24,10 @@
         >
           {{ receiverNames[index] }}
           <v-icon>{{receiverIcon(receiver.state)}}</v-icon>
+        </v-tab>
+        <v-tab href="#summary">
+          Raw
+          <v-icon>mdi-text-long</v-icon>
         </v-tab>
       </v-tabs>
       <v-btn
@@ -35,11 +39,6 @@
       </v-btn>
     </v-app-bar>
     <v-main>
-      <v-banner
-          class="red"
-      >
-        <div style="text-align: center;"><b>Deze pagina is nog in ontwerp!</b></div>
-      </v-banner>
       <v-tabs-items v-model="tab">
         <v-tab-item value="info">
           <Guide/>
@@ -51,6 +50,9 @@
         >
           <ReceiverCard :receiver="receiver" :config="getConfig(index)"/>
         </v-tab-item>
+        <v-tab-item value="summary">
+          <Summary/>
+        </v-tab-item>
       </v-tabs-items>
     </v-main>
   </v-app>
@@ -59,6 +61,7 @@
 <script>
 import ReceiverCard from './components/ReceiverCard';
 import GuideComponent from "@/components/GuideComponent";
+import SummaryComponent from "@/components/SummaryComponent";
 
 export default {
   name: 'App',
@@ -66,6 +69,7 @@ export default {
   components: {
     ReceiverCard: ReceiverCard,
     Guide: GuideComponent,
+    Summary: SummaryComponent,
   },
 
   computed: {
@@ -100,8 +104,8 @@ export default {
     },
 
     receiverIcon: function (status) {
-      if (status === "lost") { return "mdi-wifi-strength-3-alert" }
-      if (status === "header") return "mdi-wifi"
+      if (status === "lost") { return "mdi-wifi-off" }
+      if (status === "header") return "mdi-wifi-star"
       if (["DVB-S2", "DVB-S"].indexOf(status) !== -1) {
         return "mdi-wifi-check"
       }
@@ -135,7 +139,7 @@ export default {
           })
           .then(data => {
             for (let index=0; index<4; index++) {
-              data[index].carrier_frequency = [144.6,436,437,1245][index]
+              data[index].set_frequency = [144.6,436,437,1245][index]
             }
             this.receivers = data
           })
