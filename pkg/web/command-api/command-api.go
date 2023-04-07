@@ -3,10 +3,10 @@ package command_api
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	"github.com/pi6atv/winterhill-lib/internal/web/metrics"
 	"github.com/pi6atv/winterhill-lib/pkg/commands"
 	"github.com/pi6atv/winterhill-lib/pkg/config"
 	"github.com/pi6atv/winterhill-lib/pkg/log"
+	"github.com/pi6atv/winterhill-lib/pkg/web/metrics"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -75,7 +75,7 @@ func (A *Api) SetSymbolRateHandler(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value("user").(string)
 	if !ok {
 		logrus.Warn("failed to get user from request context")
-		user = "???"
+		user = ""
 	}
 
 	command := A.getPresetCommand(receiver)

@@ -3,10 +3,10 @@ package status_api
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/pi6atv/winterhill-lib/internal/web/metrics"
 	"github.com/pi6atv/winterhill-lib/pkg/config"
 	"github.com/pi6atv/winterhill-lib/pkg/events"
 	"github.com/pi6atv/winterhill-lib/pkg/summary"
+	"github.com/pi6atv/winterhill-lib/pkg/web/metrics"
 	"github.com/pkg/errors"
 	"net/http"
 )

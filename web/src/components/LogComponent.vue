@@ -8,7 +8,13 @@
           <v-list-item-content>
             <v-list-item-title>
               {{ new Date(message.time).toLocaleString('nl-NL') }} &rang;
-              {{ message.user }} stelde <strong>{{ message.setting }} in op {{ message.value }}ks</strong>
+              <span v-if="message.user !== ''">
+                {{ message.user }} stelde <strong>{{ message.setting }} in op {{ message.value }}ks</strong>
+              </span>
+              <span v-else>
+                <strong>{{ message.setting }} ingesteld op {{ message.value }}ks</strong>
+              </span>
+
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
