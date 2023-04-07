@@ -19,7 +19,7 @@ func Test_hub_Archive(t *testing.T) {
 			name: "happy path: remove one",
 			history: []log.Message{
 				{Time: now},
-				{Time: now.Add(time.Hour * -2)},
+				{Time: now.Add(time.Hour * -5)},
 				{Time: now},
 				{Time: now},
 			},
@@ -49,9 +49,9 @@ func Test_hub_Archive(t *testing.T) {
 		{
 			name: "happy path: remove all",
 			history: []log.Message{
-				{Time: now.Add(time.Hour * -2)},
-				{Time: now.Add(time.Hour * -2)},
-				{Time: now.Add(time.Hour * -2)},
+				{Time: now.Add(time.Hour * -5)},
+				{Time: now.Add(time.Hour * -5)},
+				{Time: now.Add(time.Hour * -5)},
 			},
 			newMessage: log.Message{Time: now, Call: "new"},
 			want: []log.Message{
@@ -61,11 +61,11 @@ func Test_hub_Archive(t *testing.T) {
 		{
 			name: "happy path: remove multiple",
 			history: []log.Message{
-				{Time: now.Add(time.Hour * -2)},
-				{Time: now.Add(time.Hour * -2)},
+				{Time: now.Add(time.Hour * -5)},
+				{Time: now.Add(time.Hour * -5)},
 				{Time: now},
 				{Time: now},
-				{Time: now.Add(time.Hour * -2)},
+				{Time: now.Add(time.Hour * -5)},
 				{Time: now},
 			},
 			newMessage: log.Message{Time: now, Call: "new"},

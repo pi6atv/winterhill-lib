@@ -1,7 +1,6 @@
 package log
 
 import (
-	"context"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
@@ -41,7 +40,7 @@ func TestStream_Log(t *testing.T) {
 			},
 			user: "",
 			want: Message{
-				Call:    "???",
+				Call:    "",
 				Setting: "module",
 				Value:   "what",
 			},
@@ -52,12 +51,7 @@ func TestStream_Log(t *testing.T) {
 			S := &Stream{
 				in: make(chan Message, 1),
 			}
-			r, _ := http.NewRequest("GET", "/", nil)
-			if tt.user != "" {
-				ctx := context.WithValue(r.Context(), "user", tt.user)
-				r = r.WithContext(ctx)
-			}
-			S.Log(r, tt.args.module, tt.args.what)
+			S.Log(tt.user, 0, tt.args.module, tt.args.what)
 
 			msg := <-S.in
 			assert.Equal(t, tt.want.Call, msg.Call, "call")
@@ -75,7 +69,7 @@ func TestStream_Log_timeout(t *testing.T) {
 	done := make(chan bool)
 
 	go func() {
-		S.Log(&http.Request{}, "", "")
+		S.Log("", 0, "", "")
 		done <- true
 	}()
 	select {

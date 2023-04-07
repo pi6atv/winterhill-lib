@@ -13,13 +13,13 @@ func TestListener_parse(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    map[int64]StatusEvent
+		want    map[int64]*StatusEvent
 		wantErr bool
 	}{
 		{
 			name: "happy flow: rx 1",
 			args: args{in: fixtures.FullCycle[1]},
-			want: map[int64]StatusEvent{
+			want: map[int64]*StatusEvent{
 				0: {
 					Index:            1,
 					State:            "search",
@@ -39,7 +39,7 @@ func TestListener_parse(t *testing.T) {
 		{
 			name: "happy flow: rx 3",
 			args: args{in: fixtures.FullCycle[3]},
-			want: map[int64]StatusEvent{
+			want: map[int64]*StatusEvent{
 				2: {
 					Index:               3,
 					State:               "DVB-S2",
@@ -67,7 +67,7 @@ func TestListener_parse(t *testing.T) {
 		{
 			name: "happy flow: rx 4",
 			args: args{in: fixtures.FullCycle[4]},
-			want: map[int64]StatusEvent{
+			want: map[int64]*StatusEvent{
 				3: {
 					Index:               4,
 					State:               "DVB-S2",
@@ -96,7 +96,7 @@ func TestListener_parse(t *testing.T) {
 		{
 			name: "error flow: missing header",
 			args: args{in: "foobar"},
-			want: map[int64]StatusEvent{
+			want: map[int64]*StatusEvent{
 				0: {},
 				1: {},
 				2: {},
@@ -107,7 +107,7 @@ func TestListener_parse(t *testing.T) {
 		{
 			name: "error flow: invalid header",
 			args: args{in: "$0,a"},
-			want: map[int64]StatusEvent{
+			want: map[int64]*StatusEvent{
 				0: {},
 				1: {},
 				2: {},
@@ -118,7 +118,7 @@ func TestListener_parse(t *testing.T) {
 		{
 			name: "error flow: invalid freq",
 			args: args{in: "$0,1\r\n$6,abcd"},
-			want: map[int64]StatusEvent{
+			want: map[int64]*StatusEvent{
 				0: {Index: 1, Mer: -100, DNumber: -100},
 				1: {},
 				2: {},
@@ -137,7 +137,7 @@ func TestListener_parse(t *testing.T) {
 				// we're not testing the history here
 				receiver.MerHistory = L.Receivers[index].MerHistory
 				receiver.ServiceHistory = L.Receivers[index].ServiceHistory
-				assert.Equal(t, receiver, *L.Receivers[index])
+				assert.Equal(t, tt.want[index], L.Receivers[index])
 			}
 		})
 	}
