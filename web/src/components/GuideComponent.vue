@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title>
-      Welkom op de DVB Winterhill ontvanger status pagina van PI6ATV.
+      Welkom op de DVB Winterhill ontvanger status pagina.
     </v-card-title>
     <v-card-text>
       <v-row>

@@ -15,7 +15,4 @@ This can be accessed locally as well as remote. For the code for this, see [app]
 ```
 
 ## Todo
-* move middleware somewhere else, it's pi6atv specific?
-* add bool parameter to disable/enable log? Or do some magic to detect? Or maybe configure a header to get a username or token from?
-* find a way to customise the info page and/or disable it
 * translations / set language
