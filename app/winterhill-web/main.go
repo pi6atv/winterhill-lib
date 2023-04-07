@@ -18,12 +18,12 @@ import (
 var (
 	//go:embed dist
 	all                   embed.FS
-	listenPort            = flag.String("listen", ":8080", "the address to listen on")
+	listenPort            = flag.String("listen", ":80", "the address to listen on")
 	winterhillIP          = flag.String("winterhill-ip", "127.0.0.1", "winterhill IP")
 	winterhillCommandPort = flag.Int("winterhill-command-port", 9901, "winterhill command port")
 	winterhillBasePort    = flag.Int64("winterhill-base-port", 9920, "winterhill base port")
 	srResetDuration       = flag.Duration("symbol-rate-reset-duration", 30*time.Minute, "time after which the symbol rate is reset to default")
-	webSubPath            = flag.String("web-path", "/winterhill", "base path for the web pages and api")
+	webSubPath            = flag.String("web-path", "/", "base path for the web pages and api")
 )
 
 func main() {
