@@ -1,15 +1,15 @@
 module.exports = {
-  publicPath: '/winterhill/',
+  publicPath: '.',
   transpileDependencies: [
     'vuetify'
   ],
   devServer: {
     proxy: {
-      "^/winterhill/api/": {
+      "^/api/": {
         target: "http://localhost:8080",
         changeOrigin: true,
       },
-      "^/winterhill/ws/": {
+      "^/ws/": {
         target: "http://localhost:8080",
         changeOrigin: true,
       },

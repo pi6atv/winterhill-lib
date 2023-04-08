@@ -66,16 +66,8 @@ func main() {
 		Methods("POST")
 
 	static, _ := fs.Sub(dist, "dist")
-	//if *webSubPath != "/" {
-	//	rootRouter.PathPrefix(*webSubPath + "/").Handler(http.StripPrefix(*webSubPath+"/", http.FileServer(http.FS(static))))
-	//} else {
-	//	subPathRouter.PathPrefix("/").Handler(http.FileServer(http.FS(static)))
-	//}
-
-	// waarom moet deze er in om het te laten werken??
-	rootRouter.PathPrefix("/winterhill/").Handler(http.StripPrefix("/winterhill/", http.FileServer(http.FS(static))))
-
-	subPathRouter.PathPrefix("/").Handler(http.StripPrefix(*webSubPath, http.FileServer(http.FS(static))))
+	staticServer := http.FileServer(http.FS(static))
+	subPathRouter.PathPrefix("/").Handler(http.StripPrefix(*webSubPath, staticServer))
 
 	fmt.Println("starting webserver")
 	// print all routes

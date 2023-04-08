@@ -11,12 +11,6 @@
           Hier kun je ook de symbol rate instellen.<br>
         </v-col>
       </v-row>
-
-      <v-row>
-        <v-col>
-          <v-img width="600px" src="receiver.jpg"></v-img>
-        </v-col>
-      </v-row>
     </v-card-text>
   </v-card>
 </template>

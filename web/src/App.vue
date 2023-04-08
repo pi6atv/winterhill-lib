@@ -22,7 +22,7 @@
             v-bind:href="'#' + index"
             v-bind:key="index"
         >
-          {{ receiverNames[index] }}
+          {{ getConfig(index).frequency/1000 }}
           <v-icon>{{receiverIcon(receiver.state)}}</v-icon>
         </v-tab>
         <v-tab href="#summary">
@@ -87,12 +87,6 @@ export default {
     receivers: [],
     error: "",
     config: {},
-    receiverNames: [
-        "2m",
-        "70cm 436.00",
-        "70cm 437.00",
-        "23cm",
-    ],
   }),
   methods: {
     getConfig: function(index) {
