@@ -25,8 +25,8 @@ type Api struct {
 	log            *log.Stream
 }
 
-func New(ip string, basePort int64, resetInterval time.Duration, logStream *log.Stream) (*Api, error) {
-	iniConfig, err := config.New("")
+func New(ip string, basePort int64, resetInterval time.Duration, logStream *log.Stream, iniFilePath string) (*Api, error) {
+	iniConfig, err := config.New(iniFilePath)
 	if err != nil {
 		return nil, errors.Wrap(err, "reading winterhill.init")
 	}

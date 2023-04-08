@@ -17,10 +17,10 @@ type Api struct {
 	config          *config.WinterhillConfig
 }
 
-func New(ip string, port int) (*Api, error) {
-	iniConfig, err := config.New("")
+func New(ip string, port int, iniFilePath string) (*Api, error) {
+	iniConfig, err := config.New(iniFilePath)
 	if err != nil {
-		return nil, errors.Wrap(err, "reading winterhill.init")
+		return nil, errors.Wrap(err, "reading winterhill.ini")
 	}
 	api := Api{
 		eventListener:   events.New(4, 60),
